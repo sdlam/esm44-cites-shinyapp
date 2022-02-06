@@ -45,8 +45,19 @@ ui <- fluidPage(
                  "output goes here"
                ) #end of mainPanel 
              ) #end sidebarLayout
-             ), # end of tabPanel
-    tabPanel("Widget 3"),
+             ), # end of tabPanel widget 2
+    tabPanel("Widget 3",
+             sidebarLayout(
+               sidebarPanel(
+                 "Widget 3 goes here",
+                 selectInput("select",label = h3("Select Species"),
+                             choices = list("Species 1","Species 2",
+                                            "Species 3","Species 4","Species 5")
+                             ) # end selectInput
+                 
+               ) #end sidebarPanel
+             ) #end sidebarLayout
+             ), #end tabPanel for widget 3
     tabPanel("Widget 4")
   ) # this is end of navbarPage 
 
