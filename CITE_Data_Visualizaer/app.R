@@ -14,24 +14,26 @@ library(tidyverse)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("CITES Wildlife Data Visualization"),
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
+ 
+    # radio buttons for widget 1
+    radioButtons("radio", label = h3("Widget 1"),
+                 choices = list("Choice 1" = 1, "Choice 2" = 2, "Choice 3" = 3), 
+                 selected = 1),
+    
+    hr(),
+    fluidRow(column(3, verbatimTextOutput("value")))
+    
+)
+        
 
         # Show a plot of the generated distribution
         mainPanel(
            plotOutput("distPlot")
         )
-    )
-)
+    
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
