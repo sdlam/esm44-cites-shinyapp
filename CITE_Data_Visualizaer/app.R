@@ -8,44 +8,39 @@
 #
 
 library(shiny)
+library(tidyverse)
 
-# Define UI for application that draws a histogram
+wildlife <- read.csv("cites_wildlife_data.csv", stringsAsFactors = FALSE)
+
+## create user interface 
+
 ui <- fluidPage(
+  navbarPage(
+    "Wildlife Trade Visualization",
+    tabPanel("Widget 1",
+             sidebarLayout(
+               sidebarPanel(
+                 'widget 1 goes here',
+                 checkboxGroupInput(inputId = "wildlife_dist")
+               ),
+               mainPanel(
+                 "output goes here"
+                 ) # end of mainPanel
+             ), #end of sidebarLayout
+            ), #end of tabPanel for widget 1
+    tabPanel("Widget 2"),
+    tabPanel("Widget 3"),
+    tabPanel("Widget 4")
+  ) # this is end of navbarPage 
 
-    # Application title
-    titlePanel("CITES Wildlife Data Visualization"),
+) #end ui
 
- 
-    # radio buttons for widget 1
-    radioButtons("radio", label = h3("Widget 1"),
-                 choices = list("Choice 1" = 1, "Choice 2" = 2, "Choice 3" = 3), 
-                 selected = 1),
+
+## create server function: 
+
+server <- function(input, output){}
+
     
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value")))
-    
-)
-        
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    
-
-
-# Define server logic required to draw a histogram
-server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
-}
-
-# Run the application 
+# Combine into an app
 shinyApp(ui = ui, server = server)
