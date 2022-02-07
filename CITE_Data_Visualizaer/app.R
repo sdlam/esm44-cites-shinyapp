@@ -12,7 +12,7 @@ library(tidyverse)
 library(janitor)
 library(here)
 
-wildlife <- read.csv(here("data", "cites_wildlife_data.csv"))
+wildlife <- read_csv(here("data", "cites_wildlife_data.csv"))
 
 ## create user interface 
 
@@ -55,8 +55,10 @@ ui <- fluidPage(
                              choices = list("Species 1","Species 2",
                                             "Species 3","Species 4","Species 5")
                              ) # end selectInput
-                 
-               ) #end sidebarPanel
+                 ), #end sidebarPanel
+               mainPanel( 
+                 "output goes here"
+               ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel for widget 3
     tabPanel("Widget 4")
