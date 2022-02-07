@@ -64,7 +64,16 @@ ui <- fluidPage(theme = app_theme,
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel for widget 3
-    tabPanel("Widget 4")
+    tabPanel("Widget 4",
+             sidebarLayout(
+               sidebarPanel(
+                 "Widget 4 goes here",
+                 radioButtons("radio", label = h3("Select Product"),
+                              choices = list("Product 1","Product 2","Product 3")
+                              ) # end radioButtons
+               ) #end sidebarPanel
+             ) #end sidebarLayout
+             ) #end tabPanel widget 4
   ) # this is end of navbarPage 
 
 ) #end ui
