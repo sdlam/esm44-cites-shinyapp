@@ -14,11 +14,19 @@ library(here)
 library(bslib)
 
 wildlife <- read_csv(here("data", "cites_wildlife_data.csv"))
+elephant <- 
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
   navbarPage(
     "Wildlife Trade Visualization", #app title
+    tabPanel("Data", 
+            mainPanel(
+              "This app analyses CITES data on global, legal wildlife trade information from 2016 to 2017.", 
+              tags$img(src = "Elephant.jpeg"), 
+              "Image source: CITES Elephants page"
+            ) #end mainPanel
+             ), #end tabPanel
     tabPanel("Widget 1",
              sidebarLayout(
                sidebarPanel(
