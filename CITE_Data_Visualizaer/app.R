@@ -10,8 +10,9 @@
 library(shiny)
 library(tidyverse)
 library(janitor)
+library(here)
 
-wildlife <- read_csv("cites_wildlife_data.csv") 
+wildlife <- read.csv(here("data", "cites_wildlife_data.csv"))
 
 ## create user interface 
 
