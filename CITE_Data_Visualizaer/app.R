@@ -15,11 +15,11 @@ library(bslib)
 
 wildlife <- read_csv(here("data", "cites_wildlife_data.csv"))
 
-app_theme <- bs_theme_update(theme, bootswatch = "sandstone")
+
 
 ## create user interface 
 
-ui <- fluidPage(theme = app_theme,
+ui <- fluidPage(
   navbarPage(
     "Wildlife Trade Visualization", #app title
     tabPanel("Widget 1",
@@ -70,7 +70,10 @@ ui <- fluidPage(theme = app_theme,
                  "Widget 4 goes here",
                  radioButtons("radio", label = h3("Select Product"),
                               choices = list("Product 1","Product 2","Product 3")
-                              ) # end radioButtons
+                              ), # end radioButtons
+                 mainPanel(
+                   "output goes here"
+                 )
                ) #end sidebarPanel
              ) #end sidebarLayout
              ) #end tabPanel widget 4
