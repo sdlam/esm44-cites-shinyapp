@@ -11,14 +11,17 @@ library(shiny)
 library(tidyverse)
 library(janitor)
 library(here)
+library(bslib)
 
 wildlife <- read_csv(here("data", "cites_wildlife_data.csv"))
 
+app_theme <- bs_theme_update(theme, bootswatch = "sandstone")
+
 ## create user interface 
 
-ui <- fluidPage(
+ui <- fluidPage(theme = app_theme,
   navbarPage(
-    "Wildlife Trade Visualization",
+    "Wildlife Trade Visualization", #app title
     tabPanel("Widget 1",
              sidebarLayout(
                sidebarPanel(
