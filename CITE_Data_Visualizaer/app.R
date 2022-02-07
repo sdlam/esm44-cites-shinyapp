@@ -70,11 +70,11 @@ ui <- fluidPage(
                  "Widget 4 goes here",
                  radioButtons("radio", label = h3("Select Product"),
                               choices = list("Product 1","Product 2","Product 3")
-                              ), # end radioButtons
-                 mainPanel(
-                   "output goes here"
-                 )
-               ) #end sidebarPanel
+                              ) # end radioButtons
+               ),#end sidebarPanel
+               mainPanel(
+                 "output goes here"
+               ) #end of mainPanel
              ) #end sidebarLayout
              ) #end tabPanel widget 4
   ) # this is end of navbarPage 
