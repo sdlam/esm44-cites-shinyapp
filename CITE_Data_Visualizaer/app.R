@@ -11,7 +11,7 @@ library(shiny)
 library(tidyverse)
 library(janitor)
 
-wildlife <- read.csv("cites_wildlife_data.csv", stringsAsFactors = FALSE) 
+wildlife <- read_csv("cites_wildlife_data.csv") 
 
 ## create user interface 
 
