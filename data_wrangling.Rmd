@@ -1,0 +1,41 @@
+---
+title: "Data wrangling"
+author: "Ali Martin and Sarah Lam"
+date: "2/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(tmap)
+```
+
+### Wrangling for Widget 1- Imports and Exports
+```{r}
+# import data 
+wildlife_sf <- read_sf(here("data","cites_wildlife_data.csv")) %>% 
+clean_names() 
+```
+
+
+```{r}
+#count most frequent imports in 2016 because 2017 had boring data
+imports_sf <- wildlife_sf %>% 
+  filter(year == "2016") 
+
+```
+
+
+```{r}
+imports_sf %>% 
+  count(taxon, sort = TRUE) 
+
+# i dont know how to make this a data frame so the top imports are:
+#"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+
+ 
+```
