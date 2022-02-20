@@ -89,7 +89,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 
 ## create server function: 
 
-server <- function(input, output){}
+server <- function(input, output){
+    
+  })
+  
+}
 
     
 
