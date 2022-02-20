@@ -1,0 +1,74 @@
+---
+title: "Data Wrangling for CITES"
+author: "Ali Martin and Sarah Lam"
+date: "2/20/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(tmap)
+library(here)
+```
+
+### Wrangling for Widget 4- Imports and Exports
+```{r}
+# import data 
+wildlife_sf <- read_sf(here("data","cites_wildlife_data.csv")) %>% 
+clean_names() %>% 
+  filter(year == "2016")
+```
+
+
+
+```{r}
+count_sf <- wildlife_sf %>% 
+  count(taxon, sort = TRUE) 
+  
+
+# i dont know how to make this a data frame so the top imports are:
+#"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+
+ 
+```
+
+### filter for top 5 imported species
+```{r}
+top5_sf <- wildlife_sf %>% 
+  filter(taxon %in% c("Crocodylus niloticus", "Python reticulatus","Alligator mississippiensis","Crocodylus porosus","Varanus salvator")) 
+  
+  
+```
+
+## calculate imports and exports of top 5 species
+
+```{r}
+top5_imports_sf <- top5_sf %>% 
+  group_by(importer) %>% 
+  count(taxon, sort = TRUE) 
+
+top5_exports_sf <- top5_sf %>% 
+  group_by(exporter) %>% 
+  count(taxon, sort = TRUE)
+  
+```
+
+### Wrangling for Widget 2
+
+Graph of traded species and how much is live or dead
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
