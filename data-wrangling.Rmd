@@ -62,7 +62,16 @@ top5_exports_sf <- top5_sf %>%
 Graph of traded species and how much is live or dead
 
 ```{r}
+# graph of live species for top species
 
+live_species <- wildlife_sf %>% 
+  group_by(taxon) %>% 
+  filter(term == "live")
+  
+  
+
+ggplot(data = live_species, aes(count(x = taxon))) +
+  geom_histogram()
 ```
 
 
