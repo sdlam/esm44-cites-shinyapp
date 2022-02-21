@@ -18,43 +18,59 @@ library(here)
 ### Wrangling for Widget 4- Imports and Exports
 ```{r}
 # import data 
-wildlife_sf <- read_sf(here("data","cites_wildlife_data.csv")) %>% 
-clean_names() %>% 
-  filter(year == "2016")
+wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
+clean_names()
+
+
+
+Complete = merge(x = df1, y = df2, by = "StudentId",
+                                 all.x = TRUE)
 ```
 
-
-
 ```{r}
-count_sf <- wildlife_sf %>% 
-  count(taxon, sort = TRUE) 
+count <- wildlife %>% 
+  count(taxon, sort = TRUE) %>% 
+  slice_max(n, n = 10)
   
-
 # i dont know how to make this a data frame so the top imports are:
 #"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+## I sliced it to only show the top 10? Not sure if this is what we want? 
 
  
 ```
 
 ### filter for top 5 imported species
 ```{r}
-top5_sf <- wildlife_sf %>% 
+top5 <- wildlife %>% 
   filter(taxon %in% c("Crocodylus niloticus", "Python reticulatus","Alligator mississippiensis","Crocodylus porosus","Varanus salvator")) 
-  
-  
 ```
 
 ## calculate imports and exports of top 5 species
 
 ```{r}
-top5_imports_sf <- top5_sf %>% 
+top5_imports <- top5 %>% 
   group_by(importer) %>% 
   count(taxon, sort = TRUE) 
 
-top5_exports_sf <- top5_sf %>% 
+top5_exports <- top5 %>% 
   group_by(exporter) %>% 
   count(taxon, sort = TRUE)
   
+```
+
+Thinking about changing widget 4, wrangling for this change
+
+```{r}
+top_purpose <- wildlife %>% 
+  group_by(purpose) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 6)
+
+commercial <- wildlife %>% 
+  filter(purpose == "T")
+
+ggplot(data = commercial, aes(x = genus)) +
+  geom_bar()
 ```
 
 ### Wrangling for Widget 2
@@ -73,6 +89,14 @@ live_species <- wildlife_sf %>%
 ggplot(data = live_species, aes(count(x = taxon))) +
   geom_histogram()
 ```
+
+### Data wrangling for widget 3
+drop down of well known wildlife species, import/export data for these species 
+
+```{r}
+
+```
+
 
 
 

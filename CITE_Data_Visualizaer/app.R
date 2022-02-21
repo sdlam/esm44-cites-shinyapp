@@ -13,8 +13,8 @@ library(janitor)
 library(here)
 library(bslib)
 
-wildlife <- read_csv(here("data", "cites_wildlife_data.csv"))
-elephant <- 
+wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
+  clean_names()
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
@@ -73,12 +73,15 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
              sidebarLayout(
                sidebarPanel(
                  "Widget 4 goes here",
-                 radioButtons("radio", label = h3("Select Product"),
-                              choices = list("Product 1","Product 2","Product 3")
+                 radioButtons("radio", 
+                              inputId = "trade_purpose", 
+                              label = h3("Select Trade Purpose"),
+                              choices = list("Commercial","Personal","Scientific", "Hunting Trophy", "Circus/Traveling Exibition")
                               ) # end radioButtons
                ),#end sidebarPanel
                mainPanel(
-                 "output goes here"
+                 "output goes here",
+                 plotOutput(outputId = 'purpose_plot')
                ) #end of mainPanel
              ) #end sidebarLayout
              ) #end tabPanel widget 4
@@ -89,9 +92,17 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 
 ## create server function: 
 
-server <- function(input, output){}
-
-    
+server <- function(input, output) {
+  purpose_select <-  reactive({
+    wildlife_trade %>% 
+      filter(purpose == input$trade_purpose)
+  }) #end purpose_select reactive
+  
+  output$purpose_plot <- renderPlot({
+    ggplot(data = purpose_select(), aes(x = genus)) +
+      geom_bar()
+  })
+}
 
 # Combine into an app
 shinyApp(ui = ui, server = server)
