@@ -13,7 +13,8 @@ library(janitor)
 library(here)
 library(bslib)
 
-wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv"))
+wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
+  clean_names()
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
@@ -93,13 +94,13 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 
 server <- function(input, output) {
   purpose_select <-  reactive({
-    wildlife %>% 
+    wildlife_trade %>% 
       filter(purpose == input$trade_purpose)
   }) #end purpose_select reactive
   
   output$purpose_plot <- renderPlot({
-    ggplot(data = purpose_select(), aes(x = flipper_length_mm, y = body_mass_g)) +
-      geom_point(color = input$pt_color)
+    ggplot(data = purpose_select(), aes(x = genus)) +
+      geom_bar()
   })
 }
 
