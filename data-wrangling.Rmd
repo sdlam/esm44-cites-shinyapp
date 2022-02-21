@@ -23,15 +23,15 @@ clean_names() %>%
   filter(year == "2016")
 ```
 
-
-
 ```{r}
 count_sf <- wildlife_sf %>% 
-  count(taxon, sort = TRUE) 
+  count(taxon, sort = TRUE) %>% 
+  slice_max(n, n = 10)
   
 
 # i dont know how to make this a data frame so the top imports are:
 #"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+## I sliced it to only show the top 10? Not sure if this is what we want? 
 
  
 ```
