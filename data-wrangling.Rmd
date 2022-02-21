@@ -64,6 +64,9 @@ top_purpose <- wildlife %>%
 
 commercial <- wildlife %>% 
   filter(purpose == "T")
+
+ggplot(data = commercial, aes(x = genus)) +
+  geom_bar()
 ```
 
 ### Wrangling for Widget 2
