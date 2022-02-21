@@ -73,8 +73,8 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
              sidebarLayout(
                sidebarPanel(
                  "Widget 4 goes here",
-                 radioButtons("radio", label = h3("Select Product"),
-                              choices = list("Product 1","Product 2","Product 3")
+                 radioButtons("radio", label = h3("Select Trade Purpose"),
+                              choices = list("Commercial","Personal","Scientific", "Hunting Trophy", "Circus/Traveling Exibition")
                               ) # end radioButtons
                ),#end sidebarPanel
                mainPanel(
