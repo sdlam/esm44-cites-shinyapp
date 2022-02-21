@@ -19,8 +19,12 @@ library(here)
 ```{r}
 # import data 
 wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
-clean_names() %>% 
-  filter(year == "2016")
+clean_names()
+
+
+
+Complete = merge(x = df1, y = df2, by = "StudentId",
+                                 all.x = TRUE)
 ```
 
 ```{r}
@@ -78,6 +82,7 @@ Graph of traded species and how much is live or dead
 ```
 
 ### Data wrangling for widget 3
+drop down of well known wildlife species, import/export data for these species 
 
 ```{r}
 
