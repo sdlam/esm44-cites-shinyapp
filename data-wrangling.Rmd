@@ -63,9 +63,9 @@ ggplot(data = import_export_sf) +
 wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
   clean_names()
 
-wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% 
-  clean_names() %>% 
-  distinct()
+#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
+  #clean_names() %>% 
+  #distinct()
 ```
 
 ```{r}
