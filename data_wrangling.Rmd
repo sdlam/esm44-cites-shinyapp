@@ -1,0 +1,84 @@
+---
+title: "Data wrangling"
+author: "Ali Martin and Sarah Lam"
+date: "2/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(tmap)
+library(leaflet)
+```
+
+
+### Wrangling for Widget 1- Imports and Exports
+```{r}
+# import data 
+wildlife_sf <- read_sf(here("data","cites_data.csv")) %>% 
+clean_names() 
+```
+
+
+```{r}
+#count most frequent imports in 2016 because 2017 had boring data
+imports_sf <- wildlife_sf %>% 
+  filter(year == "2016") 
+
+```
+
+
+```{r}
+imports_sf %>% st_crs() #takes sf object and retrieves coordinate system info, look for the ID code
+
+imports_sf %>%  raster::crs() #outdated way to set the crs, the above one is better
+
+```
+
+
+
+
+```{r}
+imports_sf %>% 
+  count(taxon, sort = TRUE) 
+
+# i dont know how to make this a data frame so the top imports are:
+#"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+
+ 
+```
+
+### filter for crocs
+```{r}
+croc_imports_sf <- imports_sf %>% 
+  filter(taxon == "Crocodylus niloticus") 
+  
+  
+```
+
+## count for each importer
+```{r}
+croc_imports_counts_sf <- croc_imports_sf %>% 
+  group_by(importer) %>% 
+  count()
+```
+
+## read in map data 
+
+```{r}
+country_data_sf <- st_read('shapefiles/Countries.shp') %>%
+  janitor::clean_names()
+grid_sf <- read_sf('shapefiles/World30.shp') %>%
+  janitor::clean_names()
+```
+
+##plot
+
+
+  
+```
+
