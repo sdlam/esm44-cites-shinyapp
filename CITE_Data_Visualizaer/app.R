@@ -12,6 +12,7 @@ library(tidyverse)
 library(janitor)
 library(here)
 library(bslib)
+library(sf)
 
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
@@ -88,15 +89,19 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
              sidebarLayout(
                sidebarPanel(
                  "Widget 4 goes here",
-                 radioButtons("radio", 
+                 checkboxGroupInput("radio", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
-                              choices = list("Commercial","Personal","Scientific", "Hunting Trophy", "Circus/Traveling Exibition")
-                              ) # end radioButtons
+                              choices = list("Commercial" = "T",
+                                             "Personal" = "P",
+                                             "Scientific" = "S",
+                                             "Hunting Trophy" = "H",
+                                             "Circus/Traveling Exibition" = "Q")
+                              ) # end CheckboxGroupInput
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                 plotOutput(outputId = 'purpose_plot')
+                DT::dataTableOutput("purpose_table")
                ) #end of mainPanel
              ) #end sidebarLayout
              ) #end tabPanel widget 4
@@ -109,26 +114,27 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 
 server <- function(input, output) {
   
-  import_export_select <- reactive({
+  import_export_select <- reactive({ #widget 1 reactive and output
     import_export_sf %>% 
      filter(name == input$import_export)
   }) #end import_export reactive
  
   output$import_export_map <- renderPlot({
-     ggplot(data = import_export_select()) +
+    ggplot(data = import_export_select()) +
     geom_sf(aes(fill = value), color = 'white', size = 0.1) +
     scale_fill_gradient() +
     theme_void()
   })#end import_export_map output 
-  
+
+  #Widget 4 reactive and output 
   purpose_select <-  reactive({
-    wildlife_trade %>% 
-      filter(purpose == input$trade_purpose)
+    reactive_table %>% 
+      select(taxon:exporter, term, purpose) %>% 
+      filter(purpose %in% c(input$trade_purpose))
   }) #end purpose_select reactive
   
-  output$purpose_plot <- renderPlot({
-    ggplot(data = purpose_select(), aes(x = genus)) +
-      geom_bar()
+  output$purpose_table <- DT::renderDataTable({
+    purpose_select
   })#end purpose plot output
 }
 
