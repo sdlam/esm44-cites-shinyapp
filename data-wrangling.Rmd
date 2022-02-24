@@ -13,7 +13,11 @@ library(janitor)
 library(sf)
 library(tmap)
 library(here)
+library(rcites)
 ```
+
+
+
 
 ### Wrangling for Widget 1 
 
@@ -135,6 +139,10 @@ ggplot(data = live_species, aes(count(x = taxon))) +
 drop down of well known wildlife species, import/export data for these species 
 
 ```{r}
+charisma_species <- wildlife %>% 
+  filter(taxon %in% c('Loxodonta africana','Chelonia mydas','Oryx dammah','Varanus niloticus','Pavo cristatus')) %>%
+  
+  
 
 ```
 
