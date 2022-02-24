@@ -17,6 +17,16 @@ library(rcites)
 ```
 
 
+read in the data 
+```{r}
+# import data 
+wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
+  clean_names()
+
+#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
+  #clean_names() %>% 
+  #distinct()
+```
 
 
 ### Wrangling for Widget 1 
@@ -40,7 +50,7 @@ wrangling for map
 country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
   select(country = name, code = 'alpha-2') 
 
-world_sf <- read_sf(here('data', 'ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
+world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
 
 world_subset_sf <- world_sf %>% 
   clean_names() %>% 
@@ -48,7 +58,8 @@ world_subset_sf <- world_sf %>%
   merge(country_codes, by = 'country')
 
 world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
-import_export_sf <- merge(world_import_sf, export_sum, by = 'code')
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
+  pivot_longer(cols = c("import_count", "export_count"))
 
 ggplot(data = import_export_sf) +
   geom_sf(aes(fill = import_count), color = 'white', size = 0.1) +
@@ -62,15 +73,6 @@ ggplot(data = import_export_sf) +
 ```
 
 ### Wrangling for Widget 4- Imports and Exports
-```{r}
-# import data 
-wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
-  clean_names()
-
-#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
-  #clean_names() %>% 
-  #distinct()
-```
 
 ```{r}
 count <- wildlife %>% 

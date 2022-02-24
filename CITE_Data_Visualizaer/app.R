@@ -15,6 +15,19 @@ library(bslib)
 
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
+country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
+  select(country = name, code = 'alpha-2') 
+
+world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
+
+world_subset_sf <- world_sf %>% 
+  clean_names() %>% 
+  select(country = sovereignt) %>% 
+  merge(country_codes, by = 'country')
+
+world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
+  pivot_longer(cols = c("import_count", "export_count"))
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
@@ -31,13 +44,15 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
              sidebarLayout(
                sidebarPanel(
                  'widget 1 goes here',
-                 checkboxGroupInput(inputId = "wildlife_dist",
-                                    label = "Choose Term:",
-                                    choices = c("Importer", "Exporter")
-                                    ) # end checkboxGroupInput
+                 radioButtons("radio",
+                              inputId = "import_export",
+                              label = "Global Wildlife Importer and Exporters",
+                              choices = c("Importers" = "import_count", "Exporters" = "export_count")
+                                    ) # end radioButtons Input
                ), #end of sidebarPanel
                mainPanel(
-                 "output goes here"
+                 "output goes here",
+                 plotOutput(outputId = 'import_export_map')
                  ) # end of mainPanel
              ), #end of sidebarLayout
             ), #end of tabPanel for widget 1
@@ -93,6 +108,19 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 ## create server function: 
 
 server <- function(input, output) {
+  
+  import_export_select <- reactive({
+    import_export_sf %>% 
+     filter(name == input$import_export)
+  }) #end import_export reactive
+ 
+  output$import_export_map <- renderPlot({
+     ggplot(data = import_export_select()) +
+    geom_sf(aes(fill = value), color = 'white', size = 0.1) +
+    scale_fill_gradient() +
+    theme_void()
+  })#end import_export_map output 
+  
   purpose_select <-  reactive({
     wildlife_trade %>% 
       filter(purpose == input$trade_purpose)
@@ -101,7 +129,7 @@ server <- function(input, output) {
   output$purpose_plot <- renderPlot({
     ggplot(data = purpose_select(), aes(x = genus)) +
       geom_bar()
-  })
+  })#end purpose plot output
 }
 
 # Combine into an app
