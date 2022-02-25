@@ -140,6 +140,7 @@ ggplot(data = live_species, aes(count(x = taxon))) +
 ```
 
 ### Data wrangling for widget 3
+
 drop down of well known wildlife species, import/export data for these species 
 
 ```{r}
@@ -150,13 +151,43 @@ charisma_species <- wildlife %>%
   
 ```
 
+### Merge top 3 files
 
 ```{r}
+elephants <- read_csv(here('data','elephants.csv'))
+
+oryx <- read_csv(here('data','oryx.csv'))
+
+pythons <- read_csv(here('data','python.csv'))
 
 ```
 
+```{r}
+top3 <- rbind(elephants, oryx, pythons) %>% 
+  distinct() %>% 
+  clean_names()
+```
 
+```{r}
+#elephant terms
+elephant_terms <- top3 %>%  
+  filter(taxon = "Loxodonta africana")
+  group_by(Year,Taxon, Term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
 
+#ggplot(data = elephant_tusks, aes(x = Year, y = count)) +
+  #geom_line(aes(color = Term)) 
+```
+
+```{r}
+turtle_terms <- top3 %>% 
+  filter(taxon = "Chelonia mydas")
+  group_by(Year,Taxon, Term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
+  
+```
 
 
 
