@@ -59,7 +59,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
     tabPanel("Widget 2",
              sidebarLayout(
                sidebarPanel(
-                 "Widget 4 goes here",
+                 "Widget 2 goes here",
                  checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
@@ -72,7 +72,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                 DT::dataTableOutput(outputId = "purpose_table")
+                 tableOutput("purpose_table")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
@@ -113,16 +113,16 @@ server <- function(input, output) {
   })#end import_export_map output 
 
 #Widget 2 reactive and output 
-  purpose_select <-  reactive({
-    get(input$trade_purpose)
-    wildlife_trade %>% 
-      select(taxon:exporter, term, purpose) %>% 
-      filter(purpose %in% c(input$trade_purpose))
-  }) #end purpose_select reactive
+ # purpose_select <-  reactive({
+ #   get(input$trade_purpose)
+ #   wildlife_trade %>% 
+  #    select(taxon:exporter, term, purpose) %>% 
+  #    filter(purpose %in% c(input$trade_purpose))
+  #}) #end purpose_select reactive
   
-  output$table <- DT::renderDT({
-    res_filter$filtered()
-  }, options = list(pageLength = 20))#end purpose plot output
+  output$purpose_table <- DT::renderTable({
+   purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
+  })#end purpose plot output
 }
 
 # Combine into an app
