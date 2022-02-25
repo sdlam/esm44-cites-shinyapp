@@ -141,15 +141,9 @@ ggplot(data = live_species, aes(count(x = taxon))) +
 
 ### Data wrangling for widget 3
 
-drop down of well known wildlife species, import/export data for these species 
+time data of trade terms
 
-```{r}
-charisma_species <- wildlife %>% 
-  filter(taxon %in% c('Loxodonta africana','Chelonia mydas','Oryx dammah','Varanus niloticus','Pavo cristatus')) %>%
-  
-  
-  
-```
+
 
 ### Merge top 3 files
 
@@ -177,7 +171,10 @@ elephant_terms <- top3 %>%
   slice_max(count, n = 5)
 
 ggplot(data = elephant_terms, aes(x = year, y = count)) +
-  geom_line(aes(color = term)) 
+  geom_line(aes(color = term)) +
+  theme_minimal() +
+  labs(title = "Time Series of Top Traded Elephant Products",
+       x = "Year", y = "Count of Terms")
 
 ```
 
@@ -190,7 +187,12 @@ python_terms <- top3 %>%
   slice_max(count, n = 5)
 
 ggplot(data = python_terms, aes(x = year, y = count)) +
-  geom_line(aes(color = term)) 
+  geom_line(aes(color = term)) +
+theme_minimal() +
+  labs(title = "Time Series of Top Traded Reticulated Python Products",
+       x = "Year",
+       y = "Count of Terms")
+
   
 ```
 
@@ -203,7 +205,11 @@ oryx_terms <- top3 %>%
   slice_max(count, n = 5)
 
 ggplot(data = oryx_terms, aes(x = year, y = count)) +
-  geom_line(aes(color = term))
+  geom_line(aes(color = term)) +
+  theme_minimal() +
+  labs(title = "Time Series of Top Traded Oryx Products",
+       x = "Year", y = "Count of Terms")
+
 
 
 ```
@@ -215,9 +221,5 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
 ```
 
 
-```{r}
-ggplot(data = top3_terms, aes(x = year, y = count)) +
-  geom_line(aes(color = taxon)) + facet_wrap(~term)
-```
 
 

@@ -29,6 +29,38 @@ world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
 import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
   pivot_longer(cols = c("import_count", "export_count"))
 
+#top3 wildlife terms for widget 3 
+elephants <- read_csv(here('data','elephants.csv'))
+oryx <- read_csv(here('data','oryx.csv'))
+pythons <- read_csv(here('data','python.csv'))
+
+top3 <- rbind(elephants, oryx, pythons) %>% 
+  distinct() %>% 
+  clean_names()
+
+elephant_terms <- top3 %>%  
+  filter(taxon == "Loxodonta africana") %>% 
+  group_by(year,taxon, term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
+
+python_terms <- top3 %>% 
+  filter(taxon =="Python reticulatus") %>% 
+  group_by(year, taxon, term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
+
+oryx_terms <- top3 %>% 
+  filter(taxon == "Oryx dammah") %>% 
+  group_by(year, taxon, term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
+
+top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>% 
+  distinct() %>% 
+  clean_names()
+
+
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
   navbarPage(
@@ -59,7 +91,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
     tabPanel("Widget 2",
              sidebarLayout(
                sidebarPanel(
-                 "Widget 4 goes here",
+                 "Widget 2 goes here",
                  checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
@@ -79,14 +111,16 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
     tabPanel("Widget 3",
              sidebarLayout(
                sidebarPanel(
-                 "Widget 3 goes here",
-                 selectInput("select",label = h3("Select Species"),
-                             choices = list("Species 1","Species 2",
-                                            "Species 3","Species 4","Species 5")
+                 "Visual Exploration of Traded Animal Products",
+                 selectInput("select",
+                             inputId = "pick_species",
+                             label = h3("Select Species"),
+                             choices = unique(top3_terms$taxon)
                  ) # end selectInput
                ), #end sidebarPanel
                mainPanel( 
-                 "output goes here"
+                 h3("Explore Top Traded Products for 3 Popular Traded Species"),
+                 plotOutput(outputId = 'term_plot')
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
@@ -112,7 +146,7 @@ server <- function(input, output) {
     theme_void()
   })#end import_export_map output 
 
-#Widget 4 reactive and output 
+#Widget 2 reactive and output 
   purpose_select <-  reactive({
     wildlife_trade %>% 
       select(taxon:exporter, term, purpose) %>% 
@@ -122,7 +156,47 @@ server <- function(input, output) {
   output$purpose_table <- DT::renderDataTable({
     purpose_select
   })#end purpose plot output
-}
+  
+  #Widget 3 reactive and output
+  term_reactive <- reactive({
+    top3_terms %>% 
+      filter(taxon %in% input$pick_species)
+  
+  }) # end term_plot reactive
+  
+  #start output for term_plot plot
+  output$term_plot <- render_ggplot({
+    #start with elephants
+    if(input$taxon == "Loxodonta africana"){
+    plot = ggplot(data = elephant_terms, 
+                  aes(x = year, 
+                      y = count)) +
+      geom_line(aes(color = term)) +
+      theme_minimal() +
+      labs(title = "Time Series of Top Traded Elephant Products",
+           x = "Year", y = "Count of Terms")} #end elephant plot output
+    #start python plot
+     if(input$taxon == "Python reticulatus"){
+      plot = ggplot(data = python_terms, 
+                    aes(x = year, 
+                        y = count)) +
+        geom_line(aes(color = term)) +
+        theme_minimal() +
+        labs(title = "Time Series of Top Traded Reticulated Python Products",
+             x = "Year", y = "Count of Terms")} # end python plot output
+    #start oryx plot
+    if(input$taxon == "Oryx dammah"){
+      plot = ggplot(data = oryx_terms, 
+                    aes(x = year, 
+                        y = count)) +
+        geom_line(aes(color = term)) +
+        theme_minimal() +
+        labs(title = "Time Series of Top Traded Oryx  Products",
+             x = "Year", y = "Count of Terms")} # end oryx plot output
+    plot
+    
+     }) #end term_plot plot output
+} #end all server
 
 # Combine into an app
 shinyApp(ui = ui, server = server)
