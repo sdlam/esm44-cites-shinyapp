@@ -13,19 +13,18 @@ library(janitor)
 library(here)
 library(bslib)
 library(sf)
+library(esquisse)
 
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
+
 country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
   select(country = name, code = 'alpha-2') 
-
 world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
-
 world_subset_sf <- world_sf %>% 
   clean_names() %>% 
   select(country = sovereignt) %>% 
   merge(country_codes, by = 'country')
-
 world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
 import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
   pivot_longer(cols = c("import_count", "export_count"))
@@ -60,36 +59,8 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
     tabPanel("Widget 2",
              sidebarLayout(
                sidebarPanel(
-                 "Widget 2 goes here",
-                 checkboxGroupInput(inputId = "wildlife_dist",
-                                    label = "Choose Term:",
-                                    choices = c("Live","Bodies","Specimens")
-                                    ) #end checkboxGroupOutput
-               ),#end sidebarPanel 
-               mainPanel(
-                 "output goes here"
-               ) #end of mainPanel 
-             ) #end sidebarLayout
-             ), # end of tabPanel widget 2
-    tabPanel("Widget 3",
-             sidebarLayout(
-               sidebarPanel(
-                 "Widget 3 goes here",
-                 selectInput("select",label = h3("Select Species"),
-                             choices = list("Species 1","Species 2",
-                                            "Species 3","Species 4","Species 5")
-                             ) # end selectInput
-                 ), #end sidebarPanel
-               mainPanel( 
-                 "output goes here"
-               ) #end of mainPanel
-             ) #end sidebarLayout
-             ), #end tabPanel for widget 3
-    tabPanel("Widget 4",
-             sidebarLayout(
-               sidebarPanel(
                  "Widget 4 goes here",
-                 checkboxGroupInput("radio", 
+                 checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
                               choices = list("Commercial" = "T",
@@ -101,10 +72,24 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                DT::dataTableOutput("purpose_table")
+                 filterDF_UI("purpose_table", show_nrow = TRUE)
                ) #end of mainPanel
              ) #end sidebarLayout
-             ) #end tabPanel widget 4
+             ), #end tabPanel widget 4
+    tabPanel("Widget 3",
+             sidebarLayout(
+               sidebarPanel(
+                 "Widget 3 goes here",
+                 selectInput("select",label = h3("Select Species"),
+                             choices = list("Species 1","Species 2",
+                                            "Species 3","Species 4","Species 5")
+                 ) # end selectInput
+               ), #end sidebarPanel
+               mainPanel( 
+                 "output goes here"
+               ) #end of mainPanel
+             ) #end sidebarLayout
+    ), #end tabPanel for widget 3
   ) # this is end of navbarPage 
 
 ) #end ui
@@ -113,7 +98,8 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
 ## create server function: 
 
 server <- function(input, output) {
-  
+
+#Widget 1 reactive and output  
   import_export_select <- reactive({ #widget 1 reactive and output
     import_export_sf %>% 
      filter(name == input$import_export)
@@ -126,9 +112,9 @@ server <- function(input, output) {
     theme_void()
   })#end import_export_map output 
 
-  #Widget 4 reactive and output 
+#Widget 4 reactive and output 
   purpose_select <-  reactive({
-    reactive_table %>% 
+    wildlife_trade %>% 
       select(taxon:exporter, term, purpose) %>% 
       filter(purpose %in% c(input$trade_purpose))
   }) #end purpose_select reactive
