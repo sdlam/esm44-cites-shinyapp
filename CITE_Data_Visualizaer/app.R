@@ -18,6 +18,14 @@ library(datamods)
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
 
+import_sum <- wildlife_trade %>% 
+  group_by(importer) %>% 
+  summarize(import_count = n()) %>% 
+  mutate(code = importer)
+export_sum <- wildlife_trade %>% 
+  group_by(exporter) %>% 
+  summarize(export_count = n()) %>% 
+  mutate(code = exporter)
 country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
   select(country = name, code = 'alpha-2') 
 world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
@@ -72,7 +80,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                 tableOutput("purpose_table")
+                 dataTableOutput("purpose_table")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
@@ -120,7 +128,7 @@ server <- function(input, output) {
   #    filter(purpose %in% c(input$trade_purpose))
   #}) #end purpose_select reactive
   
-  output$purpose_table <- DT::renderTable({
+  output$purpose_table <- DT::renderDataTable({
    purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
   })#end purpose plot output
 }
