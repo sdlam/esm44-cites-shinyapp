@@ -15,27 +15,33 @@ library(bslib)
 library(sf)
 library(DT)
 
+#read in data
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
 
-import_sum <- wildlife_trade %>% 
+#wrangle data for Widget 1: count imports/exports by country and attach to global sf
+import_sum <- wildlife_trade %>% #import counts
   group_by(importer) %>% 
   summarize(import_count = n()) %>% 
   mutate(code = importer)
-export_sum <- wildlife_trade %>% 
+export_sum <- wildlife_trade %>% #export counts 
   group_by(exporter) %>% 
   summarize(export_count = n()) %>% 
   mutate(code = exporter)
 country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
-  select(country = name, code = 'alpha-2') 
-world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
-world_subset_sf <- world_sf %>% 
+  select(country = name, code = 'alpha-2') #read in country code data to merge CITES data with geometry
+world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp')) #read in geometry
+world_subset_sf <- world_sf %>% #add country codes to geometry
   clean_names() %>% 
   select(country = sovereignt) %>% 
   merge(country_codes, by = 'country')
-world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
-import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
+world_import_sf <- merge(world_subset_sf, import_sum, by = 'code') #merge geometry and CITES data
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make filterable for widget
   pivot_longer(cols = c("import_count", "export_count"))
+
+#wrangle for widget 2: select just columns we want to display from data frame 
+
+#wrangle for widget 3: 
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
