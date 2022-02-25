@@ -39,7 +39,7 @@ world_import_sf <- merge(world_subset_sf, import_sum, by = 'code') #merge geomet
 import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make filterable for widget
   pivot_longer(cols = c("import_count", "export_count"))
 
-<<<<<<< HEAD
+
 #top3 wildlife terms for widget 3 
 elephants <- read_csv(here('data','elephants.csv'))
 oryx <- read_csv(here('data','oryx.csv'))
@@ -71,11 +71,11 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
   distinct() %>% 
   clean_names()
 
-=======
+
 #wrangle for widget 2: select just columns we want to display from data frame 
 
 #wrangle for widget 3: 
->>>>>>> 8cecbce1242500ca73b6f2ccf4476694accd93d2
+
 
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
@@ -133,10 +133,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                              label = h3("Select Species"),
                              choices = unique(top3_terms$taxon)
                  ) # end selectInput
+                
                ), #end sidebarPanel
-               mainPanel( 
+               mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
-                 plotOutput(outputId = 'term_plot')
+                 plotOutput('term_plot')
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
@@ -163,20 +164,20 @@ server <- function(input, output) {
   })#end import_export_map output 
 
 #Widget 2 reactive and output 
-<<<<<<< HEAD
+
   purpose_select <-  reactive({
     wildlife_trade %>% 
       select(taxon:exporter, term, purpose) %>% 
       filter(purpose %in% c(input$trade_purpose))
   }) #end purpose_select reactive
-=======
+
  # purpose_select <-  reactive({
  #   get(input$trade_purpose)
  #   wildlife_trade %>% 
   #    select(taxon:exporter, term, purpose) %>% 
   #    filter(purpose %in% c(input$trade_purpose))
   #}) #end purpose_select reactive
->>>>>>> 8cecbce1242500ca73b6f2ccf4476694accd93d2
+
   
   output$purpose_table <- DT::renderDataTable({
    purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
@@ -190,9 +191,9 @@ server <- function(input, output) {
   }) # end term_plot reactive
   
   #start output for term_plot plot
-  output$term_plot <- render_ggplot({
-    #start with elephants
-    if(input$taxon == "Loxodonta africana"){
+  output$term_plot <- renderPlot("Species Plot",{
+    #start with elephant plot
+    if(input$pick_species == "Loxodonta africana"){
     plot = ggplot(data = elephant_terms, 
                   aes(x = year, 
                       y = count)) +
@@ -201,7 +202,7 @@ server <- function(input, output) {
       labs(title = "Time Series of Top Traded Elephant Products",
            x = "Year", y = "Count of Terms")} #end elephant plot output
     #start python plot
-     if(input$taxon == "Python reticulatus"){
+     if(input$pick_species == "Python reticulatus"){
       plot = ggplot(data = python_terms, 
                     aes(x = year, 
                         y = count)) +
@@ -210,7 +211,7 @@ server <- function(input, output) {
         labs(title = "Time Series of Top Traded Reticulated Python Products",
              x = "Year", y = "Count of Terms")} # end python plot output
     #start oryx plot
-    if(input$taxon == "Oryx dammah"){
+    if(input$pick_species == "Oryx dammah"){
       plot = ggplot(data = oryx_terms, 
                     aes(x = year, 
                         y = count)) +
@@ -218,7 +219,7 @@ server <- function(input, output) {
         theme_minimal() +
         labs(title = "Time Series of Top Traded Oryx  Products",
              x = "Year", y = "Count of Terms")} # end oryx plot output
-    plot
+    
     
      }) #end term_plot plot output
 } #end all server
