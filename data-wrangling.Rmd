@@ -169,26 +169,55 @@ top3 <- rbind(elephants, oryx, pythons) %>%
 ```
 
 ```{r}
-#elephant terms
+#top 5 elephant terms
 elephant_terms <- top3 %>%  
-  filter(taxon = "Loxodonta africana")
-  group_by(Year,Taxon, Term) %>% 
+  filter(taxon == "Loxodonta africana") %>% 
+  group_by(year,taxon, term) %>% 
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
 
-#ggplot(data = elephant_tusks, aes(x = Year, y = count)) +
-  #geom_line(aes(color = Term)) 
+ggplot(data = elephant_terms, aes(x = year, y = count)) +
+  geom_line(aes(color = term)) 
+
 ```
 
 ```{r}
-turtle_terms <- top3 %>% 
-  filter(taxon = "Chelonia mydas")
-  group_by(Year,Taxon, Term) %>% 
+# top 5 phyton terms
+python_terms <- top3 %>% 
+  filter(taxon =="Python reticulatus") %>% 
+  group_by(year, taxon, term) %>% 
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
+
+ggplot(data = python_terms, aes(x = year, y = count)) +
+  geom_line(aes(color = term)) 
   
 ```
 
+```{r}
+# top 5 oryx terms
+oryx_terms <- top3 %>% 
+  filter(taxon == "Oryx dammah") %>% 
+  group_by(year, taxon, term) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
 
+ggplot(data = oryx_terms, aes(x = year, y = count)) +
+  geom_line(aes(color = term))
+
+
+```
+
+```{r}
+top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>% 
+  distinct() %>% 
+  clean_names()
+```
+
+
+```{r}
+ggplot(data = top3_terms, aes(x = year, y = count)) +
+  geom_line(aes(color = taxon)) + facet_wrap(~term)
+```
 
 
