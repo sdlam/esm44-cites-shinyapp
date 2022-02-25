@@ -147,10 +147,13 @@ charisma_species <- wildlife %>%
   filter(taxon %in% c('Loxodonta africana','Chelonia mydas','Oryx dammah','Varanus niloticus','Pavo cristatus')) %>%
   
   
-
+  
 ```
 
 
+```{r}
+
+```
 
 
 
