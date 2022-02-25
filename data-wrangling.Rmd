@@ -23,9 +23,9 @@ read in the data
 wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
   clean_names()
 
-#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
-  #clean_names() %>% 
-  #distinct()
+wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
+  clean_names() %>% 
+  distinct()
 ```
 
 
@@ -58,8 +58,8 @@ world_subset_sf <- world_sf %>%
   merge(country_codes, by = 'country')
 
 world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
-import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
-  pivot_longer(cols = c("import_count", "export_count"))
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code')
+  #pivot_longer(cols = c("import_count", "export_count"))
 
 ggplot(data = import_export_sf) +
   geom_sf(aes(fill = import_count), color = 'white', size = 0.1) +
@@ -145,10 +145,13 @@ charisma_species <- wildlife %>%
   filter(taxon %in% c('Loxodonta africana','Chelonia mydas','Oryx dammah','Varanus niloticus','Pavo cristatus')) %>%
   
   
-
+  
 ```
 
 
+```{r}
+
+```
 
 
 
