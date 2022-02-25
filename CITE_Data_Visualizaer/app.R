@@ -13,7 +13,7 @@ library(janitor)
 library(here)
 library(bslib)
 library(sf)
-library(esquisse)
+library(datamods)
 
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
@@ -72,7 +72,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                 filterDF_UI("purpose_table", show_nrow = TRUE)
+                 DT::dataTableOutput(outputId = "purpose_table")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
@@ -112,16 +112,17 @@ server <- function(input, output) {
     theme_void()
   })#end import_export_map output 
 
-#Widget 4 reactive and output 
+#Widget 2 reactive and output 
   purpose_select <-  reactive({
+    get(input$trade_purpose)
     wildlife_trade %>% 
       select(taxon:exporter, term, purpose) %>% 
       filter(purpose %in% c(input$trade_purpose))
   }) #end purpose_select reactive
   
-  output$purpose_table <- DT::renderDataTable({
-    purpose_select
-  })#end purpose plot output
+  output$table <- DT::renderDT({
+    res_filter$filtered()
+  }, options = list(pageLength = 20))#end purpose plot output
 }
 
 # Combine into an app
