@@ -81,9 +81,10 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
   navbarPage(
     "Wildlife Trade Visualization", #app title
-    tabPanel("Data", 
+    tabPanel("Overview", 
             mainPanel(
-              "This app analyses CITES data on global, legal wildlife trade information from 2016 to 2017.", 
+              "This app was created by Sarah Lam and Ali Martin. It analyses CITES data on global, legal wildlife trade information from 2012 to 2021.",
+              
               tags$img(src = "Elephant.jpeg"), 
               "Image source: CITES Elephants page"
             ) #end mainPanel
@@ -120,7 +121,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ),#end sidebarPanel
                mainPanel(
                  "output goes here",
-                 dataTableOutput("purpose_table")
+                 dataTableOutput("purpose_table"),
+                 br(),
+                 p("This widget provides an interactive table to visualize the different purposes of traded wildlife species. ")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
@@ -137,7 +140,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ), #end sidebarPanel
                mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
-                 plotOutput('term_plot')
+                 plotOutput('term_plot'),
+                 br(),
+                 p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Source: ")
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
@@ -183,27 +188,41 @@ server <- function(input, output) {
    purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
   })#end purpose plot output
   
-  #Widget 3 reactive and output
- #term_reactive <- reactive({
-    #top3_terms %>% 
-    #input$pick_species
-  term_reactive <- reactive({
-    top3_terms %>% 
-      select(year:count) %>% 
+  #WIDGET 3
+  
+  ## Data for Widget 3
+
+ 
+  
+ #elephant reactive
+  elephant_reactive <- reactive({
+    elephant_terms %>% 
       filter(taxon == input$pick_species)
-    }) # end term_plot reactive
+    }) # end elephant reactive
+ # python reactivr 
+python_reactive <- reactive({
+    python_terms %>% 
+      filter(taxon == input$pick_species)
+  }) #end python reactive
+
+#oryx reactive
+oryx_reactive <- reactive({
+  oryx_terms %>% 
+    filter(taxon == input$pick_species)
+}) # End oryx reactive
   
   #start output for term_plot plot
   output$term_plot <- renderPlot({
     #start with elephant plot
     if(input$pick_species == "Loxodonta africana"){
-    plot = ggplot(data = term_reactive(), 
+    plot = ggplot(data = elephant_reactive(), 
                   aes(x = year, 
                       y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
       labs(title = "Time Series of Top Traded Elephant Products",
            x = "Year", y = "Count of Terms")} #end elephant plot output
+    
     #start python plot
      if(input$pick_species == "Python reticulatus"){
       plot = ggplot(data = term_reactive(), 
@@ -213,7 +232,9 @@ server <- function(input, output) {
         theme_minimal() +
         labs(title = "Time Series of Top Traded Reticulated Python Products",
              x = "Year", y = "Count of Terms")} # end python plot output
+    
     #start oryx plot
+    
     if(input$pick_species == "Oryx dammah"){
       plot = ggplot(data = term_reactive(), 
                     aes(x = year, 
