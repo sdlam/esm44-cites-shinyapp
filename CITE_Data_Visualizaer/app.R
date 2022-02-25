@@ -13,7 +13,7 @@ library(janitor)
 library(here)
 library(bslib)
 library(sf)
-library(datamods)
+library(DT)
 
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
   clean_names()
