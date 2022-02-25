@@ -1,0 +1,158 @@
+---
+title: "Data Wrangling for CITES"
+author: "Ali Martin and Sarah Lam"
+date: "2/20/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(tmap)
+library(here)
+library(rcites)
+```
+
+
+read in the data 
+```{r}
+# import data 
+wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
+  clean_names()
+
+#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
+  #clean_names() %>% 
+  #distinct()
+```
+
+
+### Wrangling for Widget 1 
+
+import export data 
+
+```{r}
+import_sum <- wildlife %>% 
+  group_by(importer) %>% 
+  summarize(import_count = n()) %>% 
+  mutate(code = importer)
+
+export_sum <- wildlife %>% 
+  group_by(exporter) %>% 
+  summarize(export_count = n()) %>% 
+  mutate(code = exporter)
+```
+
+wrangling for map
+```{r}
+country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
+  select(country = name, code = 'alpha-2') 
+
+world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
+
+world_subset_sf <- world_sf %>% 
+  clean_names() %>% 
+  select(country = sovereignt) %>% 
+  merge(country_codes, by = 'country')
+
+world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
+  pivot_longer(cols = c("import_count", "export_count"))
+
+ggplot(data = import_export_sf) +
+  geom_sf(aes(fill = import_count), color = 'white', size = 0.1) +
+  scale_fill_gradient() +
+  theme_void()
+
+ggplot(data = import_export_sf) +
+  geom_sf(aes(fill = export_count), color = 'white', size = 0.1) +
+  scale_fill_gradient() +
+  theme_void()
+```
+
+### Wrangling for Widget 4- Imports and Exports
+
+```{r}
+count <- wildlife %>% 
+  count(taxon, sort = TRUE) %>% 
+  slice_max(n, n = 10)
+  
+# i dont know how to make this a data frame so the top imports are:
+#"Crocodylus niloticus","Python reticulatus","Alligator mississippiensis","Macaca fascicularis" 
+## I sliced it to only show the top 10? Not sure if this is what we want? 
+
+ 
+```
+
+### filter for top 5 imported species
+```{r}
+top5 <- wildlife %>% 
+  filter(taxon %in% c("Crocodylus niloticus", "Python reticulatus","Alligator mississippiensis","Crocodylus porosus","Varanus salvator")) 
+```
+
+## calculate imports and exports of top 5 species
+
+```{r}
+top5_imports <- top5 %>% 
+  group_by(importer) %>% 
+  count(taxon, sort = TRUE) 
+
+top5_exports <- top5 %>% 
+  group_by(exporter) %>% 
+  count(taxon, sort = TRUE)
+  
+```
+
+Thinking about changing widget 4, wrangling for this change
+
+```{r}
+top_purpose <- wildlife %>% 
+  group_by(purpose) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 6)
+
+commercial <- wildlife %>% 
+  filter(purpose == "T")
+
+ggplot(data = commercial, aes(x = genus)) +
+  geom_bar()
+```
+
+### Wrangling for Widget 2
+
+Graph of traded species and how much is live or dead
+
+```{r}
+# graph of live species for top species
+
+live_species <- wildlife %>% 
+  group_by(taxon) %>% 
+  filter(term == "live")
+  
+  
+
+ggplot(data = live_species, aes(count(x = taxon))) +
+  geom_histogram()
+```
+
+### Data wrangling for widget 3
+drop down of well known wildlife species, import/export data for these species 
+
+```{r}
+charisma_species <- wildlife %>% 
+  filter(taxon %in% c('Loxodonta africana','Chelonia mydas','Oryx dammah','Varanus niloticus','Pavo cristatus')) %>%
+  
+  
+
+```
+
+
+
+
+
+
+
+
+
