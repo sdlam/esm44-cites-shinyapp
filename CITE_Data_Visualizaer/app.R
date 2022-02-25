@@ -184,17 +184,20 @@ server <- function(input, output) {
   })#end purpose plot output
   
   #Widget 3 reactive and output
+ #term_reactive <- reactive({
+    #top3_terms %>% 
+    #input$pick_species
   term_reactive <- reactive({
     top3_terms %>% 
-      filter(taxon %in% input$pick_species)
-  
-  }) # end term_plot reactive
+      select(year:count) %>% 
+      filter(taxon == input$pick_species)
+    }) # end term_plot reactive
   
   #start output for term_plot plot
-  output$term_plot <- renderPlot("Species Plot",{
+  output$term_plot <- renderPlot({
     #start with elephant plot
     if(input$pick_species == "Loxodonta africana"){
-    plot = ggplot(data = elephant_terms, 
+    plot = ggplot(data = term_reactive(), 
                   aes(x = year, 
                       y = count)) +
       geom_line(aes(color = term)) +
@@ -203,7 +206,7 @@ server <- function(input, output) {
            x = "Year", y = "Count of Terms")} #end elephant plot output
     #start python plot
      if(input$pick_species == "Python reticulatus"){
-      plot = ggplot(data = python_terms, 
+      plot = ggplot(data = term_reactive(), 
                     aes(x = year, 
                         y = count)) +
         geom_line(aes(color = term)) +
@@ -212,7 +215,7 @@ server <- function(input, output) {
              x = "Year", y = "Count of Terms")} # end python plot output
     #start oryx plot
     if(input$pick_species == "Oryx dammah"){
-      plot = ggplot(data = oryx_terms, 
+      plot = ggplot(data = term_reactive(), 
                     aes(x = year, 
                         y = count)) +
         geom_line(aes(color = term)) +
