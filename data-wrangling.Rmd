@@ -23,11 +23,10 @@ read in the data
 wildlife <- read_csv(here("data","cites_wildlife_data.csv")) %>% 
   clean_names()
 
-#wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
-  #clean_names() %>% 
-  #distinct()
+wildlife_big <- read_csv(here("data","cites_trade_data.csv")) %>% ### aggregate data that sarah toyed with 
+  clean_names() %>% 
+  distinct()
 ```
-
 
 ### Wrangling for Widget 1 
 
@@ -58,8 +57,8 @@ world_subset_sf <- world_sf %>%
   merge(country_codes, by = 'country')
 
 world_import_sf <- merge(world_subset_sf, import_sum, by = 'code')
-import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% 
-  pivot_longer(cols = c("import_count", "export_count"))
+import_export_sf <- merge(world_import_sf, export_sum, by = 'code')
+  #pivot_longer(cols = c("import_count", "export_count"))
 
 ggplot(data = import_export_sf) +
   geom_sf(aes(fill = import_count), color = 'white', size = 0.1) +
@@ -114,10 +113,13 @@ top_purpose <- wildlife %>%
   slice_max(count, n = 6)
 
 commercial <- wildlife %>% 
-  filter(purpose == "T")
+  filter(purpose == "T") %>% 
+  group_by(taxon) %>%  
+  summarize(count = n()) %>% 
+  slice_max(count, n = )
 
-ggplot(data = commercial, aes(x = genus)) +
-  geom_bar()
+ggplot(data = commercial, aes(y = taxon, x = count)) +
+  geom_col()
 ```
 
 ### Wrangling for Widget 2
