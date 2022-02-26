@@ -196,11 +196,11 @@ server <- function(input, output) {
 
  
   
- #elephant reactive
+ #term reactive
   term_reactive <- reactive({
     top3_terms %>% 
-      filter(taxon == c(input$pick_species))
-    }) # end elephant reactive
+      filter(taxon %in% c(input$pick_species))
+    }) # end term reactive
   
   #start output for term_plot plot
   output$term_plot <- renderPlot({
