@@ -134,7 +134,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                  selectInput("select",
                              inputId = "pick_species",
                              label = h3("Select Species"),
-                             choices = unique(top3_terms$taxon)
+                             choices = c("African Elephant" = "Loxodonta africana",
+                                         "Reticulated Python" = "Python reticulatus",
+                                         "Oryx" = "Oryx dammah")
                  ) # end selectInput
                 
                ), #end sidebarPanel
@@ -195,56 +197,20 @@ server <- function(input, output) {
  
   
  #elephant reactive
-  elephant_reactive <- reactive({
-    elephant_terms %>% 
-      filter(taxon == input$pick_species)
+  term_reactive <- reactive({
+    top3_terms %>% 
+      filter(taxon == c(input$pick_species))
     }) # end elephant reactive
- # python reactivr 
-python_reactive <- reactive({
-    python_terms %>% 
-      filter(taxon == input$pick_species)
-  }) #end python reactive
-
-#oryx reactive
-oryx_reactive <- reactive({
-  oryx_terms %>% 
-    filter(taxon == input$pick_species)
-}) # End oryx reactive
   
   #start output for term_plot plot
   output$term_plot <- renderPlot({
-    #start with elephant plot
-    if(input$pick_species == "Loxodonta africana"){
-    plot = ggplot(data = elephant_reactive(), 
-                  aes(x = year, 
-                      y = count)) +
+    ggplot(data = top3_terms, aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
-      labs(title = "Time Series of Top Traded Elephant Products",
-           x = "Year", y = "Count of Terms")} #end elephant plot output
-    
-    #start python plot
-     if(input$pick_species == "Python reticulatus"){
-      plot = ggplot(data = term_reactive(), 
-                    aes(x = year, 
-                        y = count)) +
-        geom_line(aes(color = term)) +
-        theme_minimal() +
-        labs(title = "Time Series of Top Traded Reticulated Python Products",
-             x = "Year", y = "Count of Terms")} # end python plot output
-    
-    #start oryx plot
-    
-    if(input$pick_species == "Oryx dammah"){
-      plot = ggplot(data = term_reactive(), 
-                    aes(x = year, 
-                        y = count)) +
-        geom_line(aes(color = term)) +
-        theme_minimal() +
-        labs(title = "Time Series of Top Traded Oryx  Products",
-             x = "Year", y = "Count of Terms")} # end oryx plot output
-    
-    
+      labs(title = "Time Series of Top Traded Wildlife Products for Elephants, Pythons, and Oryx",
+           x = "Year", y = "Count of Terms")
+  
+   
      }) #end term_plot plot output
 } #end all server
 
