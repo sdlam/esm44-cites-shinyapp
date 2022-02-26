@@ -39,6 +39,7 @@ world_import_sf <- merge(world_subset_sf, import_sum, by = 'code') #merge geomet
 import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make filterable for widget
   pivot_longer(cols = c("import_count", "export_count"))
 
+#wrangle for widget 2: select just columns we want to display from data frame 
 
 #top3 wildlife terms for widget 3 
 elephants <- read_csv(here('data','elephants.csv'))
@@ -71,12 +72,6 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
   distinct() %>% 
   clean_names()
 
-
-#wrangle for widget 2: select just columns we want to display from data frame 
-
-#wrangle for widget 3: 
-
-
 ## create user interface 
 ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
   navbarPage(
@@ -89,7 +84,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
               "Image source: CITES Elephants page"
             ) #end mainPanel
              ), #end tabPanel
-    tabPanel("Widget 1",
+    tabPanel("Import/Export Map",
              sidebarLayout(
                sidebarPanel(
                  'widget 1 goes here',
@@ -105,7 +100,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                  ) # end of mainPanel
              ), #end of sidebarLayout
             ), #end of tabPanel for widget 1
-    tabPanel("Widget 2",
+    tabPanel("Top Trade Purpose Data",
              sidebarLayout(
                sidebarPanel(
                  "Widget 2 goes here",
@@ -127,36 +122,33 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
-    tabPanel("Widget 3",
+    tabPanel("Well Known Animals",
              sidebarLayout(
                sidebarPanel(
                  "Visual Exploration of Traded Animal Products",
-                 selectInput("select",
+                 radioButtons("radio",
                              inputId = "pick_species",
                              label = h3("Select Species"),
                              choices = c("African Elephant" = "Loxodonta africana",
                                          "Reticulated Python" = "Python reticulatus",
                                          "Oryx" = "Oryx dammah")
                  ) # end selectInput
-                
                ), #end sidebarPanel
-               mainPanel(
+             mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
-                 plotOutput('term_plot'),
+                 plotOutput("term_plot"),
                  br(),
                  p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Source: ")
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
   ) # this is end of navbarPage 
-
 ) #end ui
 
 
 ## create server function: 
 
 server <- function(input, output) {
-
 #Widget 1 reactive and output  
   import_export_select <- reactive({ #widget 1 reactive and output
     import_export_sf %>% 
@@ -170,47 +162,25 @@ server <- function(input, output) {
     theme_void()
   })#end import_export_map output 
 
-#Widget 2 reactive and output 
-
-  purpose_select <-  reactive({
-    wildlife_trade %>% 
-      select(taxon:exporter, term, purpose) %>% 
-      filter(purpose %in% c(input$trade_purpose))
-  }) #end purpose_select reactive
-
- # purpose_select <-  reactive({
- #   get(input$trade_purpose)
- #   wildlife_trade %>% 
-  #    select(taxon:exporter, term, purpose) %>% 
-  #    filter(purpose %in% c(input$trade_purpose))
-  #}) #end purpose_select reactive
-
-  
+#Widget 2 output 
   output$purpose_table <- DT::renderDataTable({
    purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
   })#end purpose plot output
   
-  #WIDGET 3
-  
-  ## Data for Widget 3
-
- 
-  
+# Widget 3 reactive and output
  #term reactive
   term_reactive <- reactive({
     top3_terms %>% 
-      filter(taxon %in% c(input$pick_species))
+      filter(taxon == c(input$pick_species))
     }) # end term reactive
   
   #start output for term_plot plot
   output$term_plot <- renderPlot({
-    ggplot(data = top3_terms, aes(x = year, y = count)) +
+    ggplot(data = term_re, aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
-      labs(title = "Time Series of Top Traded Wildlife Products for Elephants, Pythons, and Oryx",
+      labs(title = "Time Series of Top Traded Wildlife Products for Well Known Species",
            x = "Year", y = "Count of Terms")
-  
-   
      }) #end term_plot plot output
 } #end all server
 
