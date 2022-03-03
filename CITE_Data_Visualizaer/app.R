@@ -176,7 +176,7 @@ server <- function(input, output) {
   
   #start output for term_plot plot
   output$term_plot <- renderPlot({
-    ggplot(data = term_re, aes(x = year, y = count)) +
+    ggplot(data = term_reactive(), aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
       labs(title = "Time Series of Top Traded Wildlife Products for Well Known Species",
