@@ -140,8 +140,6 @@ ggplot(data = live_species, aes(count(x = taxon))) +
 
 time data of trade terms
 
-
-
 ### Merge top 3 files
 
 ```{r}
