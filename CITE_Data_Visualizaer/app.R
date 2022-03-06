@@ -14,6 +14,7 @@ library(here)
 library(bslib)
 library(sf)
 library(DT)
+library(plotly)
 
 #read in data
 wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
@@ -73,13 +74,22 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
   clean_names()
 
 ## create user interface 
-ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
+ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
   navbarPage(
     "Wildlife Trade Visualization", #app title
     tabPanel("Overview", 
             mainPanel(
-              "This app was created by Sarah Lam and Ali Martin. It analyses CITES data on global, legal wildlife trade information from 2012 to 2021.",
-              
+              "The global wildlife trade is at the heart of the tension between conservation of biodiversity and human development. ",
+              "Whether for medicine, food, culture, or construction, a large proportion of our economy and way of life is reliant on wildlife products",
+              "International wildlife trade has both positive and negative consequences, depending on the species being traded.",
+              "It can enhance rural economies and provide incentives for sustainable use and management of species.",
+              "However, it can lead to overharvest, and can negatively impact ecosystems. High value trade can also marginalize poor communities and can create dependence on unsustainable levels of harvest.",
+              br(),
+              br(),
+              "This app uses CITES wildlife trade data from 2012 to 2021 to visualize patterns and trends within the legal international wildlife trade. ",
+              "App created by Sarah Lam and Ali Martin, 2022",
+              br(),
+              br(),
               tags$img(src = "Elephant.jpeg"), 
               "Image source: CITES Elephants page"
             ) #end mainPanel
@@ -87,16 +97,19 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
     tabPanel("Import/Export Map",
              sidebarLayout(
                sidebarPanel(
-                 'widget 1 goes here',
+                 'Global Wildlife Importer and Exporters',
                  radioButtons("radio",
                               inputId = "import_export",
-                              label = "Global Wildlife Importer and Exporters",
-                              choices = c("Importers" = "import_count", "Exporters" = "export_count")
+                              label = "Select Exchange",
+                              choices = c("Importers" = "import_count", "Exporters" = "export_count"),
+                              selected = "import_count"
                                     ) # end radioButtons Input
                ), #end of sidebarPanel
                mainPanel(
-                 "output goes here",
-                 plotOutput(outputId = 'import_export_map')
+                 "Map of Imports and Exports for Wildlife Species",
+                 plotOutput(outputId = 'import_export_map'),
+                 br(),
+                 p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
                  ) # end of mainPanel
              ), #end of sidebarLayout
             ), #end of tabPanel for widget 1
@@ -114,15 +127,16 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                                              "Circus/Traveling Exibition" = "Q")
                               ) # end CheckboxGroupInput
                ),#end sidebarPanel
+          
                mainPanel(
-                 "output goes here",
+                 "Purposes of Traded Wildlife",
                  dataTableOutput("purpose_table"),
                  br(),
                  p("This widget provides an interactive table to visualize the different purposes of traded wildlife species. ")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 4
-    tabPanel("Well Known Animals",
+    tabPanel("Traded Animal Products",
              sidebarLayout(
                sidebarPanel(
                  "Visual Exploration of Traded Animal Products",
@@ -132,11 +146,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "superhero"),
                              choices = c("African Elephant" = "Loxodonta africana",
                                          "Reticulated Python" = "Python reticulatus",
                                          "Oryx" = "Oryx dammah")
-                 ) # end selectInput
+                             ) # end selectInput
                ), #end sidebarPanel
              mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
-                 plotOutput("term_plot"),
+                 plotlyOutput("term_plot"),
                  br(),
                  p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Source: ")
                ) #end of mainPanel
@@ -175,7 +189,7 @@ server <- function(input, output) {
     }) # end term reactive
   
   #start output for term_plot plot
-  output$term_plot <- renderPlot({
+  output$term_plot <- renderPlotly({
     ggplot(data = term_reactive(), aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
