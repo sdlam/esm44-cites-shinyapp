@@ -101,8 +101,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                  radioButtons("radio",
                               inputId = "import_export",
                               label = "Select Exchange",
-                              choices = c("Importers" = "import_count", "Exporters" = "export_count"),
-                              selected = "import_count"
+                              choices = c("Importers" = "import_count", "Exporters" = "export_count")
                                     ) # end radioButtons Input
                ), #end of sidebarPanel
                mainPanel(

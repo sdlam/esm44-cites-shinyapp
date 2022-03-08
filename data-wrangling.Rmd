@@ -13,7 +13,8 @@ library(janitor)
 library(sf)
 library(tmap)
 library(here)
-library(rcites)
+
+
 ```
 
 
@@ -46,6 +47,10 @@ wrangling for map
 country_codes <- read_csv('https://raw.githubusercontent.com/sdlam/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.csv') %>% 
   select(country = name, code = 'alpha-2') 
 
+country_coordinates <- read_csv("country_codes/countries_codes_and_coordinates.csv") %>% 
+  clean_names() %>% 
+  select(country, code = 'alpha_2_code', "latitude_average","longitude_average")
+
 world_sf <- read_sf(here('ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp'))
 
 world_subset_sf <- world_sf %>% 
@@ -66,6 +71,70 @@ ggplot(data = import_export_sf) +
   geom_sf(aes(fill = export_count), color = 'white', size = 0.1) +
   scale_fill_gradient() +
   theme_void()
+```
+
+```{r}
+#count number of diff species imported by country
+species_imports <- wildlife %>% 
+  select(taxon, importer, year) %>%
+  group_by(importer) %>% 
+  count(taxon) %>% 
+  mutate(code = importer)
+  
+
+#do the same for export
+species_exports <- wildlife %>% 
+  select(taxon, exporter, year) %>%
+  group_by(exporter) %>% 
+  count(taxon) %>% 
+  mutate(code = exporter)
+
+#convert to sf
+species_imports_sf <- merge(world_subset_sf, species_imports, by = "code")
+species_exports_sf <- merge(world_subset_sf, species_exports, by = "code")
+
+## filter because the data set is too large
+top_species_imports <- species_imports_sf %>% 
+  filter(taxon %in% c('Oryx dammah','Loxodonta africana','Python reticulatus','Crocodylus niloticus'))
+
+## do the same for exports
+top_species_exports <- species_exports_sf %>% 
+  filter(taxon %in% c('Oryx dammah','Loxodonta africana','Python reticulatus','Crocodylus niloticus'))
+
+
+```
+
+
+
+
+## World Map of Imports of Popular SPecies
+
+```{r}
+## interactive map of popular imports of species
+tmap_mode(mode = 'view') #toggles to interactive viewing
+tm_shape(world_import_sf) + #taking a shape..
+  tm_fill('import_count', palette = 'BuGn') + #attributing a fill to that shape
+  tm_borders(col = 'black') +
+  tm_shape(top_species_imports) +
+  tm_dots(col= "taxon",
+          size = 0.05,
+          popup.vars = c("country:" = "country", "species:" = "taxon","imported count" = "n"),
+          title = "Imported Taxon")
+```
+
+## World Map of Exports of Popular Species
+
+```{r}
+## map of exports
+tmap_mode(mode = 'view') #toggles to interactive viewing
+tm_shape(import_export_sf) + #taking a shape..
+  tm_fill('export_count', palette = 'BuGn') + #attributing a fill to that shape
+  tm_borders(col = 'black') +
+  tm_shape(top_species_exports) +
+  tm_dots(col= "taxon",
+          size = 0.05,
+          popup.vars = c("country:" = "country", "species:" = "taxon","exported count" = "n"),
+          title = "Exported Taxon")
 ```
 
 ### Wrangling for Widget 4- Imports and Exports
@@ -214,4 +283,7 @@ top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
   distinct() %>% 
   clean_names()
 ```
+
+
+
 
