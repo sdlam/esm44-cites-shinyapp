@@ -17,8 +17,11 @@ library(DT)
 library(plotly)
 
 #read in data
-wildlife_trade <- read_csv(here("data", "cites_wildlife_data.csv")) %>% 
+wildlife_trade <- read_csv(here("data", "cites_trade_data.csv")) %>% 
   clean_names()
+elephants <- read_csv(here('data','elephants.csv'))
+oryx <- read_csv(here('data','oryx.csv'))
+pythons <- read_csv(here('data','python.csv'))
 
 #wrangle data for Widget 1: count imports/exports by country and attach to global sf
 import_sum <- wildlife_trade %>% #import counts
@@ -43,10 +46,6 @@ import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make fi
 #wrangle for widget 2: select just columns we want to display from data frame 
 
 #top3 wildlife terms for widget 3 
-elephants <- read_csv(here('data','elephants.csv'))
-oryx <- read_csv(here('data','oryx.csv'))
-pythons <- read_csv(here('data','python.csv'))
-
 top3 <- rbind(elephants, oryx, pythons) %>% 
   distinct() %>% 
   clean_names()
