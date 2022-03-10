@@ -44,6 +44,9 @@ import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make fi
   pivot_longer(cols = c("import_count", "export_count"))
 
 #wrangle for widget 2: select just columns we want to display from data frame 
+purpose_trade <- wildlife_trade %>% 
+  select()
+  
 
 #top3 wildlife terms for widget 3 
 top3 <- rbind(elephants, oryx, pythons) %>% 
