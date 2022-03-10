@@ -45,11 +45,10 @@ import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make fi
 
 #wrangle for widget 2: select just columns we want to display from data frame 
 purpose_trade <- wildlife_trade %>% 
-  select()
+  select(year, taxon, class, order, family, genus, importer, exporter, term, purpose)
   
-
 #top3 wildlife terms for widget 3 
-top3 <- rbind(elephants, oryx, pythons) %>% 
+top3 <- rbind(elephants, oryx, pythons) %>%
   distinct() %>% 
   clean_names()
 
@@ -179,7 +178,7 @@ server <- function(input, output) {
 
 #Widget 2 output 
   output$purpose_table <- DT::renderDataTable({
-   purpose_filter <- subset(wildlife_trade, purpose == input$trade_purpose)
+   purpose_filter <- subset(purpose_trade, purpose == input$trade_purpose)
   })#end purpose plot output
   
 # Widget 3 reactive and output
