@@ -109,6 +109,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                  "Map of Imports and Exports for Wildlife Species",
                  plotOutput(outputId = 'import_export_map'),
                  br(),
+                 plotOutput(outputId = ""),
                  p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
                  ) # end of mainPanel
              ), #end of sidebarLayout
@@ -152,7 +153,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
                  plotlyOutput("term_plot"),
                  br(),
-                 p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022.  ")
+                 p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Elephants, Pythons, and Oryxes are highly sought after in the wildlife trade industry for their animal products. ")
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
@@ -168,13 +169,27 @@ server <- function(input, output) {
     import_export_sf %>% 
      filter(name == input$import_export)
   }) #end import_export reactive
+  
+ import_taxon <- reactive({ #widget 1 graph reactive
+   taxon_imports
+   }) #end widget 1 graph reactive
  
   output$import_export_map <- renderPlot({
     ggplot(data = import_export_select()) +
     geom_sf(aes(fill = value), color = 'white', size = 0.1) +
     scale_fill_gradient() +
-    theme_void()
-  })#end import_export_map output 
+    theme_void()   }) #end output for map
+    
+  output$import_export_graph <- renderPlotly({
+    ggplot(data = import_taxon(),
+    aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
+    geom_col() +
+    scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
+    labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+    ggtitle("Most Imported Species for 2021-2022") +
+    scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
+  
+  })#end graph output 
 
 #Widget 2 output 
   output$purpose_table <- DT::renderDataTable({

@@ -120,8 +120,10 @@ taxon_imports_clean %>%
 
 taxon_exports_clean <- select(taxon_exports, -c('taxon','filters'))
 
+## only get top 5 exports
 top5_exports <- taxon_exports_clean %>%
   slice_max(n = 5, quantity) 
+
 
 ## plot the data
 
