@@ -13,6 +13,8 @@ library(janitor)
 library(sf)
 library(tmap)
 library(here)
+library(plotly)
+library(highcharter)
 ```
 
 
@@ -64,7 +66,45 @@ ggplot(data = import_export_sf) +
   geom_sf(aes(fill = export_count), color = 'white', size = 0.1) +
   scale_fill_gradient() +
   theme_void()
+
+
 ```
+
+```{r}
+## map of exports
+tmap_mode(mode = 'view') #toggles to interactive viewing
+tm_shape(import_export_sf) + #taking a shape..
+  tm_fill(col = 'import_count', 
+          palette = "viridis",
+          alpha = 0.5,
+          popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
+  tm_borders(col = 'black')
+
+## top 5 import countries: Japan (JP), USA (US), China (CN), Canada (CA), France (FR)
+```
+
+
+```{r}
+## map of exports
+tmap_mode(mode = 'view') #toggles to interactive viewing
+tm_shape(import_export_sf) + #taking a shape..
+  tm_fill(col = 'export_count', 
+          palette = "viridis",
+          alpha = 0.5,
+          popup.vars = c("country" = "country", "count of exports" = "export_count")) + #attributing a fill to that shape
+  tm_borders(col = 'black')
+
+```
+
+```{r}
+import_countries <- wildlife %>% 
+  filter(importer %in% c('JP','US','CN','CA','FR')) %>% 
+  group_by(importer) %>% 
+count(taxon)
+
+
+```
+
 
 ```{r}
 #count number of diff species imported by country
@@ -96,34 +136,32 @@ top_species_exports <- species_exports_sf %>%
 ```
 
 
-## World Map of Imports of Popular Species
-```{r}
-## interactive map of popular imports of species
-tmap_mode(mode = 'view') #toggles to interactive viewing
-tm_shape(world_import_sf) + #taking a shape..
-  tm_fill('import_count', palette = 'BuGn') + #attributing a fill to that shape
-  tm_borders(col = 'black') +
-  tm_shape(top_species_imports) +
-  tm_dots(col= "taxon",
-          size = 0.05,
-          popup.vars = c("country:" = "country", "species:" = "taxon","imported count" = "n"),
-          title = "Imported Taxon")
-```
 
-## World Map of Exports of Popular Species
 
 ```{r}
 ## map of exports
 tmap_mode(mode = 'view') #toggles to interactive viewing
 tm_shape(import_export_sf) + #taking a shape..
-  tm_fill('export_count', palette = 'BuGn') + #attributing a fill to that shape
-  tm_borders(col = 'black') +
-  tm_shape(top_species_exports) +
-  tm_dots(col= "taxon",
-          size = 0.05,
-          popup.vars = c("country:" = "country", "species:" = "taxon","exported count" = "n"),
-          title = "Exported Taxon")
+  tm_fill(col = 'import_count', 
+          palette = "viridis",
+          alpha = 0.5,
+          popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
+  tm_borders(col = 'black')
 ```
+
+
+```{r}
+## map of exports
+tmap_mode(mode = 'view') #toggles to interactive viewing
+tm_shape(import_export_sf) + #taking a shape..
+  tm_fill(col = 'export_count', 
+          palette = "viridis",
+          alpha = 0.5,
+          popup.vars = c("country" = "country", "count of exports" = "export_count")) + #attributing a fill to that shape
+  tm_borders(col = 'black')
+
+```
+
 
 ### Wrangling for Widget 4- Imports and Exports
 

@@ -116,7 +116,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
     tabPanel("Top Trade Purpose Data",
              sidebarLayout(
                sidebarPanel(
-                 "Widget 2 goes here",
+                 "widget 2 goes here",
                  checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
@@ -152,7 +152,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
                  plotlyOutput("term_plot"),
                  br(),
-                 p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Source: ")
+                 p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022.  ")
                ) #end of mainPanel
              ) #end sidebarLayout
     ), #end tabPanel for widget 3
