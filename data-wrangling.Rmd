@@ -14,7 +14,8 @@ library(sf)
 library(tmap)
 library(here)
 library(plotly)
-library(highcharter)
+library(paletteer)
+
 ```
 
 
@@ -22,6 +23,13 @@ read in the data
 ```{r}
 # import data 
 wildlife <- read_csv(here("data","cites_trade_data.csv")) %>% 
+  clean_names()
+
+# import taxon data
+taxon_imports <- read_csv(here("data","taxon_imports.csv")) %>% 
+  clean_names() 
+
+taxon_exports <- read_csv(here("data","taxon_exports.csv")) %>% 
   clean_names()
 ```
 
@@ -71,7 +79,7 @@ ggplot(data = import_export_sf) +
 ```
 
 ```{r}
-## map of exports
+## map of imports
 tmap_mode(mode = 'view') #toggles to interactive viewing
 tm_shape(import_export_sf) + #taking a shape..
   tm_fill(col = 'import_count', 
@@ -97,11 +105,44 @@ tm_shape(import_export_sf) + #taking a shape..
 ```
 
 ```{r}
-import_countries <- wildlife %>% 
-  filter(importer %in% c('JP','US','CN','CA','FR')) %>% 
-  group_by(importer) %>% 
-count(taxon)
+## clean the data
 
+ taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters'))
+
+taxon_imports_clean %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Psittacus erithacus' ~ 'Grey Parrot',
+                     taxonomic_group == 'Poicephalus senegalus' ~ 'Senegal Parrot',
+                     taxonomic_group == 'Panthera pardus' ~ 'Leopard',
+                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter'))
+
+
+
+taxon_exports_clean <- select(taxon_exports, -c('taxon','filters'))
+
+top5_exports <- taxon_exports_clean %>%
+  slice_max(n = 5, quantity) 
+
+## plot the data
+
+## Taxon Imports plot
+ggplot(data = taxon_imports_clean, aes(x = taxonomic_group, y = quantity)) +
+  geom_col(aes(fill = taxonomic_group)) +
+   scale_fill_manual(values = c('yellow','orange','red','brown')) +
+  labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+  ggtitle("Most Imported Species for 2021-2022") 
+
+## Taxon Exports plot
+ggplotly(data = top5_exports, 
+       aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
+  geom_col() +
+   scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
+  labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+  ggtitle("Most Imported Species for 2021-2022") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
+ 
+
+  
 
 ```
 
@@ -136,31 +177,6 @@ top_species_exports <- species_exports_sf %>%
 ```
 
 
-
-
-```{r}
-## map of exports
-tmap_mode(mode = 'view') #toggles to interactive viewing
-tm_shape(import_export_sf) + #taking a shape..
-  tm_fill(col = 'import_count', 
-          palette = "viridis",
-          alpha = 0.5,
-          popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
-  tm_borders(col = 'black')
-```
-
-
-```{r}
-## map of exports
-tmap_mode(mode = 'view') #toggles to interactive viewing
-tm_shape(import_export_sf) + #taking a shape..
-  tm_fill(col = 'export_count', 
-          palette = "viridis",
-          alpha = 0.5,
-          popup.vars = c("country" = "country", "count of exports" = "export_count")) + #attributing a fill to that shape
-  tm_borders(col = 'black')
-
-```
 
 
 ### Wrangling for Widget 4- Imports and Exports
