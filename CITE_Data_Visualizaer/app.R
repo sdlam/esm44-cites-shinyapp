@@ -170,26 +170,37 @@ server <- function(input, output) {
      filter(name == input$import_export)
   }) #end import_export reactive
   
- import_taxon <- reactive({ #widget 1 graph reactive
-   taxon_imports
-   }) #end widget 1 graph reactive
- 
-  output$import_export_map <- renderPlot({
+ output$import_export_map <- renderPlot({
     ggplot(data = import_export_select()) +
     geom_sf(aes(fill = value), color = 'white', size = 0.1) +
     scale_fill_gradient() +
     theme_void()   }) #end output for map
-    
-  output$import_export_graph <- renderPlotly({
-    ggplot(data = import_taxon(),
-    aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
-    geom_col() +
-    scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
-    labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
-    ggtitle("Most Imported Species for 2021-2022") +
-    scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
   
-  })#end graph output 
+  ## GRAPH FOR LOOP  
+  
+  output$import_export_graph <- renderPlot({
+   
+    ## start Importer graph option 
+    if(input$import_export =="Importers"){
+      ggplot(data = taxon_imports_clean, aes(x = taxonomic_group, y = quantity)) +
+        geom_col(aes(fill = taxonomic_group)) +
+        scale_fill_manual(values = c('yellow','orange','red','brown')) +
+        labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+        ggtitle("Most Imported Species for 2021-2022")
+      } #end Import graph option
+  
+## start Exporter graph option
+   if(input$import_export == "Exporters"){
+    ggplot(data = top5_exports, 
+           aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
+      geom_col() +
+      scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
+      labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+      ggtitle("Most Imported Species for 2021-2022") +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL 
+    } ## End Exporter graph option
+    
+  }) ## END IMPORT EXPORT FOR WIDGET 1
 
 #Widget 2 output 
   output$purpose_table <- DT::renderDataTable({
