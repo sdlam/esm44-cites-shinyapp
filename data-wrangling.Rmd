@@ -15,7 +15,6 @@ library(tmap)
 library(here)
 library(plotly)
 library(paletteer)
-
 ```
 
 
@@ -75,16 +74,13 @@ ggplot(data = import_export_sf) +
   scale_fill_gradient() +
   theme_void()
 
-<<<<<<< HEAD
 #Attempting to make tmap with all data 
 tmap_mode(mode = 'view') #toggles to interactive viewing
 tm_shape(import_export_sf) + #taking a shape..
   tm_fill('import_count', palette = 'BuGn') + #attributing a fill to that shape
   tm_borders(col = 'black') +
   tm_shape() +
-  tm_dots(col = )
-=======
-
+  tm_dots()
 ```
 
 ```{r}
@@ -110,33 +106,34 @@ tm_shape(import_export_sf) + #taking a shape..
           alpha = 0.5,
           popup.vars = c("country" = "country", "count of exports" = "export_count")) + #attributing a fill to that shape
   tm_borders(col = 'black')
->>>>>>> 4ef3c20e4c3ee138da6eb69dd65468da9a429285
 
 ```
 
 ```{r}
 ## clean the data
-
- taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters'))
-
-taxon_imports_clean %>% 
+taxon_imports_clean <- select(taxon_imports, -c('taxon','filters')) %>% 
   mutate(common_name =
            case_when(taxonomic_group == 'Psittacus erithacus' ~ 'Grey Parrot',
                      taxonomic_group == 'Poicephalus senegalus' ~ 'Senegal Parrot',
                      taxonomic_group == 'Panthera pardus' ~ 'Leopard',
-                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter'))
+                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter')) 
 
+top4_imports <- taxon_imports_clean %>% 
+  mutate(echange_status = "import")
 
+taxon_exports_clean <- select(taxon_exports, -c('taxon','filters')) %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Caiman crocodilus fuscus' ~ 'Brown Caiman',
+                     taxonomic_group == 'Caretta caretta' ~ 'Loggerhead Sea Turtle',
+                     taxonomic_group == 'Boa constrictor' ~ 'Boa Constrictor',
+                     taxonomic_group == 'Testudo horsfieldii' ~ "Horsefield's Tortoise"))
 
-taxon_exports_clean <- select(taxon_exports, -c('taxon','filters'))
-
-## only get top 5 exports
-top5_exports <- taxon_exports_clean %>%
-  slice_max(n = 5, quantity) 
-
+## only get top 4 exports
+top4_exports <- taxon_exports_clean %>%
+  slice_max(n = 4, quantity) %>% 
+  mutate(exchange_status = "export")
 
 ## plot the data
-
 ## Taxon Imports plot
 ggplot(data = taxon_imports_clean, aes(x = taxonomic_group, y = quantity)) +
   geom_col(aes(fill = taxonomic_group)) +
@@ -152,12 +149,44 @@ ggplot(data = top5_exports,
   labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
   ggtitle("Most Imported Species for 2021-2022") +
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
- 
 
-  
+#Wrangling for import/export plot 
+import_export_top4 <- full_join(top4_imports, top4_exports)
+
+ggplot(data = import_export_top4, 
+       aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
+  geom_col() +
+ # scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
+  labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+  ggtitle("Most Imported Species for 2021-2022") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
 
 ```
+```{r}
+taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters')) %>% 
+  mutate(exchange_status = "import") %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Psittacus erithacus' ~ 'Grey Parrot',
+                     taxonomic_group == 'Poicephalus senegalus' ~ 'Senegal Parrot',
+                     taxonomic_group == 'Panthera pardus' ~ 'Leopard',
+                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter'))
 
+taxon_exports_clean <- select(taxon_exports, -c('taxon','filters')) %>% 
+  mutate(exchange_status = "export") %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Caiman crocodilus fuscus' ~ 'Brown Caiman',
+                     taxonomic_group == 'Caretta caretta' ~ 'Loggerhead Sea Turtle',
+                     taxonomic_group == 'Boa constrictor' ~ 'Boa Constrictor',
+                     taxonomic_group == 'Testudo horsfieldii' ~ "Horsefield's Tortoise"))
+
+## only get top 4 exports
+top4_exports <- taxon_exports_clean %>%
+  slice_max(n = 4, quantity) 
+## join dataframe for widget
+import_export_top4 <- full_join(taxon_imports_clean, top4_exports)
+
+```
+ 
 
 ```{r}
 #count number of diff species imported by country
@@ -187,9 +216,6 @@ top_species_imports <- species_imports_sf %>%
 top_species_exports <- species_exports_sf %>% 
   filter(taxon %in% c('Oryx dammah','Loxodonta africana','Python reticulatus','Crocodylus niloticus'))
 ```
-
-
-
 
 ### Wrangling for Widget 4- Imports and Exports
 

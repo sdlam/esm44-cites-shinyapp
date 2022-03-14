@@ -52,12 +52,27 @@ import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make fi
   pivot_longer(cols = c("import_count", "export_count"))
 
 ## wrangle data for widget 1: Graphs
-taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters'))
-taxon_exports_clean <- select(taxon_exports, -c('taxon','filters'))
+taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters')) %>% 
+  mutate(exchange_status = "import_count") %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Psittacus erithacus' ~ 'Grey Parrot',
+                     taxonomic_group == 'Poicephalus senegalus' ~ 'Senegal Parrot',
+                     taxonomic_group == 'Panthera pardus' ~ 'Leopard',
+                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter'))
 
-## only get top 5 exports
-top5_exports <- taxon_exports_clean %>%
-  slice_max(n = 5, quantity) 
+taxon_exports_clean <- select(taxon_exports, -c('taxon','filters')) %>% 
+  mutate(exchange_status = "export_count") %>% 
+  mutate(common_name =
+           case_when(taxonomic_group == 'Caiman crocodilus fuscus' ~ 'Brown Caiman',
+                     taxonomic_group == 'Caretta caretta' ~ 'Loggerhead Sea Turtle',
+                     taxonomic_group == 'Boa constrictor' ~ 'Boa Constrictor',
+                     taxonomic_group == 'Testudo horsfieldii' ~ "Horsefield's Tortoise"))
+
+## only get top 4 exports
+top4_exports <- taxon_exports_clean %>%
+  slice_max(n = 4, quantity) 
+## join dataframe for widget
+import_export_top4 <- full_join(taxon_imports_clean, top4_exports)
 
 #wrangle for widget 2: select just columns we want to display from data frame 
 purpose_trade <- wildlife_trade %>% 
@@ -145,15 +160,14 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                                              "Circus/Traveling Exibition" = "Q")
                               ) # end CheckboxGroupInput
                ),#end sidebarPanel
-          
                mainPanel(
                  "Purposes of Traded Wildlife",
                  dataTableOutput("purpose_table"),
                  br(),
-                 p("This widget provides an interactive table to visualize the different purposes of traded wildlife species. ")
+                 p("This widget provides an interactive table to visualize the most common purposes of traded wildlife species. ")
                ) #end of mainPanel
              ) #end sidebarLayout
-             ), #end tabPanel widget 4
+             ), #end tabPanel widget 2
     tabPanel("Traded Animal Products",
              sidebarLayout(
                sidebarPanel(
@@ -189,47 +203,27 @@ server <- function(input, output) {
     import_export_sf %>% 
      filter(name == input$import_export)
   }) #end import_export reactive
-  
-  ##  widget 1 Import Graph reactive
-  import_taxon <- reactive({
-    taxon_imports_clean 
-  }) #end import graph reactive
-  ## Widget 1 Export Graph Reactive
-  export_taxon <- reactive({
-    top5_exports
-  }) #end export graph reactive
- 
+## Widget 1 map output 
  output$import_export_map <- renderPlotly({
     ggplot(data = import_export_select()) +
     geom_sf(aes(fill = value), color = 'grey', size = 0.1) +
     scale_fill_gradient() +
     theme_void()   }) #end output for map
   
-  ## GRAPH FOR LOOP  
-  
+##  tab 1 Import/export Graph reactive
+  import_export_taxon <- reactive({
+    import_export_top4 %>% 
+      filter(exchange_status == input$import_export)
+  }) #end import graph reactive
+## tab 1 import/export graph output 
   output$import_export_graph <- renderPlot({
-   
-    ## start Importer graph option 
-    if(input$import_export =="Importers"){
-     plot = ggplot(data = import_taxon, 
-            aes(x = taxonomic_group, y = quantity)) +
-        geom_col(aes(fill = taxonomic_group)) +
-        scale_fill_manual(values = c('yellow','orange','red','brown')) +
-        labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
-        ggtitle("Most Imported Species for 2021-2022")
-      } #end Import graph option
-  
-## start Exporter graph option
-   if(input$import_export == "Exporters"){
-    plot = ggplot(data = top5_exports, 
-           aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
+    ggplot(data = import_export_taxon(), 
+           aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = common_name)) +
       geom_col() +
-      scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
+      scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4')) +
       labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
       ggtitle("Most Imported Species for 2021-2022") +
-      scale_x_discrete(guide = guide_axis(n.dodge = 2)) 
-    } ## End Exporter graph option
-    plot 
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
   }) ## END IMPORT EXPORT FOR WIDGET 1
 
 #Widget 2 output 
