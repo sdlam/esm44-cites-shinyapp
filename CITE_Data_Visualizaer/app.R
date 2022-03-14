@@ -48,29 +48,29 @@ purpose_trade <- wildlife_trade %>%
   select(year, taxon, class, order, family, genus, importer, exporter, term, purpose)
   
 #top3 wildlife terms for widget 3 
-top3 <- rbind(elephants, oryx, pythons) %>%
+char_megafauna <- rbind(elephants, oryx, pythons) %>%
   distinct() %>% 
   clean_names()
 
-elephant_terms <- top3 %>%  
+elephant_terms <- char_megafauna %>%  
   filter(taxon == "Loxodonta africana") %>% 
   group_by(year,taxon, term) %>% 
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
 
-python_terms <- top3 %>% 
+python_terms <- char_megafauna %>% 
   filter(taxon =="Python reticulatus") %>% 
   group_by(year, taxon, term) %>% 
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
 
-oryx_terms <- top3 %>% 
+oryx_terms <- char_megafauna %>% 
   filter(taxon == "Oryx dammah") %>% 
   group_by(year, taxon, term) %>% 
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
 
-top3_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>% 
+megafauna_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>% 
   distinct() %>% 
   clean_names()
 
