@@ -120,10 +120,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                               label = "Select Exchange",
                               choices = c("Importers" = "import_count", "Exporters" = "export_count")
                                     ) # end radioButtons Input
+        
                ), #end of sidebarPanel
                mainPanel(
                  "Map of Imports and Exports for Wildlife Species",
-                 tmapOutput(outputId = 'import_export_map'),
+                 plotlyOutput(outputId = 'import_export_map'),
                  br(),
                  plotOutput(outputId = "import_export_graph"),
                  p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
@@ -133,7 +134,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
     tabPanel("Top Trade Purpose Data",
              sidebarLayout(
                sidebarPanel(
-                 "widget 2 goes here",
+                 "Trade Purpose data",
                  checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
@@ -163,7 +164,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                              choices = c("African Elephant" = "Loxodonta africana",
                                          "Reticulated Python" = "Python reticulatus",
                                          "Oryx" = "Oryx dammah")
+                             
                              ) # end selectInput
+          
                ), #end sidebarPanel
              mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
@@ -196,34 +199,11 @@ server <- function(input, output) {
     top5_exports
   }) #end export graph reactive
  
-  ### TMAP FOR LOOP
-  output$import_export_map <- renderTmap({
-   if(input$import_export == "import_count"){
-     tmap_mode(mode = "view")
-     data(import_export_select())
-  tm_shape(import_export_sf) + #taking a shape..
-    tm_fill(col = 'import_count', 
-            palette = "viridis",
-            alpha = 0.5,
-            popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
-    tm_borders(col = 'black')}# end import option
-    
-    if(input$import_export == "export_count"){
-      tmap_mode(mode = "view") 
-      tm_shape(import_export_sf) + #taking a shape..
-      tm_fill(col = 'export_count', 
-              palette = "viridis",
-              alpha = 0.5,
-              popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
-      tm_borders(col = 'black')} #end export option
-
-  }) #end function for selecting tmap
-  
-#output$import_export_map <- renderPlotly({
-    #ggplot(data = import_export_select()) +
-    #geom_sf(aes(fill = value), color = 'white', size = 0.1) +
-    #scale_fill_gradient() +
-    #theme_void()   }) #end output for map
+ output$import_export_map <- renderPlotly({
+    ggplot(data = import_export_select()) +
+    geom_sf(aes(fill = value), color = 'grey', size = 0.1) +
+    scale_fill_gradient() +
+    theme_void()   }) #end output for map
   
   ## GRAPH FOR LOOP  
   
@@ -231,7 +211,7 @@ server <- function(input, output) {
    
     ## start Importer graph option 
     if(input$import_export =="Importers"){
-     plot = ggplot(data = import_taxon(), 
+     plot = ggplot(data = import_taxon, 
             aes(x = taxonomic_group, y = quantity)) +
         geom_col(aes(fill = taxonomic_group)) +
         scale_fill_manual(values = c('yellow','orange','red','brown')) +
@@ -241,7 +221,7 @@ server <- function(input, output) {
   
 ## start Exporter graph option
    if(input$import_export == "Exporters"){
-    plot = ggplot(data = export_taxon(), 
+    plot = ggplot(data = top5_exports, 
            aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
       geom_col() +
       scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
