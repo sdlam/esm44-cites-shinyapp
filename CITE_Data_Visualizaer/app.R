@@ -172,19 +172,17 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
              sidebarLayout(
                sidebarPanel(
                  "Visual Exploration of Traded Animal Products",
-                 radioButtons("radio",
+                 selectInput("radio",
                              inputId = "pick_species",
                              label = h3("Select Species"),
                              choices = c("African Elephant" = "Loxodonta africana",
                                          "Reticulated Python" = "Python reticulatus",
                                          "Oryx" = "Oryx dammah")
-                             
                              ) # end selectInput
-          
                ), #end sidebarPanel
              mainPanel(
                  h3("Explore Top Traded Products for 3 Popular Traded Species"),
-                 plotlyOutput("term_plot"),
+                 plotlyOutput(outputId = "term_plot"),
                  br(),
                  p("This widget visualizes the top traded animal products for three of the most traded wildlife species over the course of ten years from 2012 to 2022. Elephants, Pythons, and Oryxes are highly sought after in the wildlife trade industry for their animal products. ")
                ) #end of mainPanel
@@ -234,13 +232,13 @@ server <- function(input, output) {
 # Widget 3 reactive and output
  #term reactive
   term_reactive <- reactive({
-    top3_terms %>% 
+    megafauna_terms %>% 
       filter(taxon == c(input$pick_species))
     }) # end term reactive
   
   #start output for term_plot plot
   output$term_plot <- renderPlotly({
-    ggplotly(data = term_reactive(), aes(x = year, y = count)) +
+    ggplot(data = term_reactive(), aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
       labs(title = "Time Series of Top Traded Wildlife Products for Well Known Species",

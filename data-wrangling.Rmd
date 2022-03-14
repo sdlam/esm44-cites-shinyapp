@@ -96,7 +96,6 @@ tm_shape(import_export_sf) + #taking a shape..
 ## top 5 import countries: Japan (JP), USA (US), China (CN), Canada (CA), France (FR)
 ```
 
-
 ```{r}
 ## map of exports
 tmap_mode(mode = 'view') #toggles to interactive viewing
@@ -162,32 +161,7 @@ ggplot(data = import_export_top4,
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
 
 ```
-```{r}
-taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters')) %>% 
-  mutate(exchange_status = "import") %>% 
-  mutate(common_name =
-           case_when(taxonomic_group == 'Psittacus erithacus' ~ 'Grey Parrot',
-                     taxonomic_group == 'Poicephalus senegalus' ~ 'Senegal Parrot',
-                     taxonomic_group == 'Panthera pardus' ~ 'Leopard',
-                     taxonomic_group == 'Lutra lutra' ~ 'Eurasian Otter'))
-
-taxon_exports_clean <- select(taxon_exports, -c('taxon','filters')) %>% 
-  mutate(exchange_status = "export") %>% 
-  mutate(common_name =
-           case_when(taxonomic_group == 'Caiman crocodilus fuscus' ~ 'Brown Caiman',
-                     taxonomic_group == 'Caretta caretta' ~ 'Loggerhead Sea Turtle',
-                     taxonomic_group == 'Boa constrictor' ~ 'Boa Constrictor',
-                     taxonomic_group == 'Testudo horsfieldii' ~ "Horsefield's Tortoise"))
-
-## only get top 4 exports
-top4_exports <- taxon_exports_clean %>%
-  slice_max(n = 4, quantity) 
-## join dataframe for widget
-import_export_top4 <- full_join(taxon_imports_clean, top4_exports)
-
-```
  
-
 ```{r}
 #count number of diff species imported by country
 species_imports <- wildlife %>% 
@@ -196,7 +170,6 @@ species_imports <- wildlife %>%
   count(taxon) %>% 
   mutate(code = importer)
   
-
 #do the same for export
 species_exports <- wildlife %>% 
   select(taxon, exporter, year) %>%
