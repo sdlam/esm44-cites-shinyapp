@@ -135,7 +135,7 @@ ggplot(data = taxon_imports_clean, aes(x = taxonomic_group, y = quantity)) +
   ggtitle("Most Imported Species for 2021-2022") 
 
 ## Taxon Exports plot
-ggplotly(data = top5_exports, 
+ggplot(data = top5_exports, 
        aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
   geom_col() +
    scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +

@@ -15,6 +15,9 @@ library(bslib)
 library(sf)
 library(DT)
 library(plotly)
+library(leaflet)
+library(tmap)
+library(paletteer)
 
 #read in data
 wildlife_trade <- read_csv(here("data", "cites_trade_data.csv")) %>% 
@@ -22,6 +25,11 @@ wildlife_trade <- read_csv(here("data", "cites_trade_data.csv")) %>%
 elephants <- read_csv(here('data','elephants.csv'))
 oryx <- read_csv(here('data','oryx.csv'))
 pythons <- read_csv(here('data','python.csv'))
+# import taxon data
+taxon_imports <- read_csv(here("data","taxon_imports.csv")) %>% 
+  clean_names() 
+taxon_exports <- read_csv(here("data","taxon_exports.csv")) %>% 
+  clean_names()
 
 #wrangle data for Widget 1: count imports/exports by country and attach to global sf
 import_sum <- wildlife_trade %>% #import counts
@@ -42,6 +50,14 @@ world_subset_sf <- world_sf %>% #add country codes to geometry
 world_import_sf <- merge(world_subset_sf, import_sum, by = 'code') #merge geometry and CITES data
 import_export_sf <- merge(world_import_sf, export_sum, by = 'code') %>% #make filterable for widget
   pivot_longer(cols = c("import_count", "export_count"))
+
+## wrangle data for widget 1: Graphs
+taxon_imports_clean <-  select(taxon_imports, -c('taxon','filters'))
+taxon_exports_clean <- select(taxon_exports, -c('taxon','filters'))
+
+## only get top 5 exports
+top5_exports <- taxon_exports_clean %>%
+  slice_max(n = 5, quantity) 
 
 #wrangle for widget 2: select just columns we want to display from data frame 
 purpose_trade <- wildlife_trade %>% 
@@ -107,9 +123,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
                ), #end of sidebarPanel
                mainPanel(
                  "Map of Imports and Exports for Wildlife Species",
-                 plotOutput(outputId = 'import_export_map'),
+                 tmapOutput(outputId = 'import_export_map'),
                  br(),
-                 plotOutput(outputId = ""),
+                 plotOutput(outputId = "import_export_graph"),
                  p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
                  ) # end of mainPanel
              ), #end of sidebarLayout
@@ -164,17 +180,50 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
 ## create server function: 
 
 server <- function(input, output) {
-#Widget 1 reactive and output  
+### Widget 1 reactive and output  
+## Widget 1 Map Reactive 
   import_export_select <- reactive({ #widget 1 reactive and output
     import_export_sf %>% 
      filter(name == input$import_export)
   }) #end import_export reactive
   
- output$import_export_map <- renderPlot({
-    ggplot(data = import_export_select()) +
-    geom_sf(aes(fill = value), color = 'white', size = 0.1) +
-    scale_fill_gradient() +
-    theme_void()   }) #end output for map
+  ##  widget 1 Import Graph reactive
+  import_taxon <- reactive({
+    taxon_imports_clean 
+  }) #end import graph reactive
+  ## Widget 1 Export Graph Reactive
+  export_taxon <- reactive({
+    top5_exports
+  }) #end export graph reactive
+ 
+  ### TMAP FOR LOOP
+  output$import_export_map <- renderTmap({
+   if(input$import_export == "import_count"){
+     tmap_mode(mode = "view")
+     data(import_export_select())
+  tm_shape(import_export_sf) + #taking a shape..
+    tm_fill(col = 'import_count', 
+            palette = "viridis",
+            alpha = 0.5,
+            popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
+    tm_borders(col = 'black')}# end import option
+    
+    if(input$import_export == "export_count"){
+      tmap_mode(mode = "view") 
+      tm_shape(import_export_sf) + #taking a shape..
+      tm_fill(col = 'export_count', 
+              palette = "viridis",
+              alpha = 0.5,
+              popup.vars = c("country" = "country", "count of imports" = "import_count")) + #attributing a fill to that shape
+      tm_borders(col = 'black')} #end export option
+
+  }) #end function for selecting tmap
+  
+#output$import_export_map <- renderPlotly({
+    #ggplot(data = import_export_select()) +
+    #geom_sf(aes(fill = value), color = 'white', size = 0.1) +
+    #scale_fill_gradient() +
+    #theme_void()   }) #end output for map
   
   ## GRAPH FOR LOOP  
   
@@ -182,7 +231,8 @@ server <- function(input, output) {
    
     ## start Importer graph option 
     if(input$import_export =="Importers"){
-      ggplot(data = taxon_imports_clean, aes(x = taxonomic_group, y = quantity)) +
+     plot = ggplot(data = import_taxon(), 
+            aes(x = taxonomic_group, y = quantity)) +
         geom_col(aes(fill = taxonomic_group)) +
         scale_fill_manual(values = c('yellow','orange','red','brown')) +
         labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
@@ -191,15 +241,15 @@ server <- function(input, output) {
   
 ## start Exporter graph option
    if(input$import_export == "Exporters"){
-    ggplot(data = top5_exports, 
+    plot = ggplot(data = export_taxon(), 
            aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = taxonomic_group)) +
       geom_col() +
       scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4','steelblue')) +
       labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
       ggtitle("Most Imported Species for 2021-2022") +
-      scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL 
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) 
     } ## End Exporter graph option
-    
+    plot 
   }) ## END IMPORT EXPORT FOR WIDGET 1
 
 #Widget 2 output 
@@ -216,7 +266,7 @@ server <- function(input, output) {
   
   #start output for term_plot plot
   output$term_plot <- renderPlotly({
-    ggplot(data = term_reactive(), aes(x = year, y = count)) +
+    ggplotly(data = term_reactive(), aes(x = year, y = count)) +
       geom_line(aes(color = term)) +
       theme_minimal() +
       labs(title = "Time Series of Top Traded Wildlife Products for Well Known Species",
