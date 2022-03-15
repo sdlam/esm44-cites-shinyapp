@@ -130,11 +130,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
              sidebarLayout(
                sidebarPanel(
                  'Global Wildlife Importer and Exporters',
-                 selectInput(
+                 radioButtons(
                               inputId = "import_export",
                               label = "Select Exchange",
                               choices = c("Importers" = "import_count", "Exporters" = "export_count"),
-                              selected = "Importers"
+                              selected = "import_count"
                                     ) # end radioButtons Input
                ), #end of sidebarPanel
                mainPanel(
@@ -225,10 +225,10 @@ server <- function(input, output) {
 ## Widget 1 map output 
  output$import_export_map <- renderPlotly({
     ggplot(data = import_export_select()) +
-    geom_sf(aes(fill = value), color = 'white', size = 0.1) +
      geom_sf(data = world_sf) +
-    scale_fill_gradient() +
-    theme_void()
+     geom_sf(aes(fill = value), color = 'white', size = 0.1) +
+     scale_fill_gradient() +
+     theme_void()
    }) #end output for map
   
 ##  tab 1 Import/export Graph reactive
