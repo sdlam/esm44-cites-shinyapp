@@ -135,7 +135,6 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                               label = "Select Exchange",
                               choices = c("Importers" = "import_count", "Exporters" = "export_count")
                                     ) # end radioButtons Input
-        
                ), #end of sidebarPanel
                mainPanel(
                  "Map of Imports and Exports for Wildlife Species",
@@ -150,6 +149,20 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
              sidebarLayout(
                sidebarPanel(
                  "Trade Purpose data",
+                 selectInput("select",
+                             inputId = "pick_term",
+                             label = h3("Select Trade Term"),
+                             choices = c("Live" = "live",
+                                         "Leather Product" = "leather products (small)", 
+                                         "Caviar" = "caviar",                
+                                         "Cosmetics" = "cosmetics",               
+                                         "Trophies" = "trophies", 
+                                         "Skins" = "skins",                    
+                                         "Specimens" = "specimens",                
+                                         "Ivory Carvings" = "ivory carvings",          
+                                         "Roots" = "roots",                    
+                                         "Skin Pieces" = "skin pieces")
+                 ), # end selectInput
                  checkboxGroupInput("checkGroup", 
                               inputId = "trade_purpose", 
                               label = h3("Select Trade Purpose"),
@@ -157,11 +170,18 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                                              "Personal" = "P",
                                              "Scientific" = "S",
                                              "Hunting Trophy" = "H",
-                                             "Circus/Traveling Exibition" = "Q")
+                                             "Circus/Traveling Exibition" = "Q",
+                                             "Judicial/Forensic" = "L", 
+                                             "Captive Breeding" = "B", 
+                                             "Zoo" = "Z",
+                                             "Educational" = "E",
+                                             "Reintroduction to Wild" = "N",
+                                             "Medical" = "M")
                               ) # end CheckboxGroupInput
                ),#end sidebarPanel
                mainPanel(
-                 "Purposes of Traded Wildlife",
+                 "Terms and Purposes of Traded Wildlife",
+                 plotlyOutput(outputId = "top_term_plot"),
                  dataTableOutput("purpose_table"),
                  br(),
                  p("This widget provides an interactive table to visualize the most common purposes of traded wildlife species. ")
@@ -172,7 +192,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
              sidebarLayout(
                sidebarPanel(
                  "Visual Exploration of Traded Animal Products",
-                 selectInput("radio",
+                 selectInput("select",
                              inputId = "pick_species",
                              label = h3("Select Species"),
                              choices = c("African Elephant" = "Loxodonta africana",
@@ -206,7 +226,8 @@ server <- function(input, output) {
     ggplot(data = import_export_select()) +
     geom_sf(aes(fill = value), color = 'grey', size = 0.1) +
     scale_fill_gradient() +
-    theme_void()   }) #end output for map
+    theme_void()
+   }) #end output for map
   
 ##  tab 1 Import/export Graph reactive
   import_export_taxon <- reactive({
@@ -224,7 +245,27 @@ server <- function(input, output) {
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
   }) ## END IMPORT EXPORT FOR WIDGET 1
 
-#Widget 2 output 
+#Tab 2 
+  #top terms widget reactive
+  top_term_reactive <- reactive({
+    wildlife_trade %>% 
+      filter(term == input$pick_term) %>% 
+      group_by(taxon) %>%  
+      summarize(count = n()) %>% 
+      slice_max(count, n = 5)
+  }) # end term reactive
+  
+  #start output for top term plot
+  output$top_term_plot <- renderPlot({
+    ggplot(data = top_term_reactive(), aes(x = count, y = reorder(taxon, count))) +
+      geom_col() +
+      scale_fill_gradient(low = "azure", high = "cadetblue4") +
+      theme_minimal() +
+      labs(title = "Most Commonly Traded Species for Given Trade Term",
+           x = "Count of Terms", y = "Species Taxon")
+  }) #end term_plot plot output
+  
+  #filter widget output 
   output$purpose_table <- DT::renderDataTable({
    purpose_filter <- subset(purpose_trade, purpose == input$trade_purpose)
   })#end purpose plot output

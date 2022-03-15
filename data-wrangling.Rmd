@@ -225,19 +225,24 @@ top5_exports <- top5 %>%
 Thinking about changing widget 4, wrangling for this change
 
 ```{r}
-top_purpose <- wildlife %>% 
-  group_by(purpose) %>% 
+top_term <- wildlife %>% 
+  group_by(term) %>% 
   summarize(count = n()) %>% 
-  slice_max(count, n = 6)
+  slice_max(count, n = 10)
 
-commercial <- wildlife %>% 
-  filter(purpose == "T") %>% 
+live_term <- wildlife %>% 
+  filter(term == "live") %>% 
   group_by(taxon) %>%  
   summarize(count = n()) %>% 
-  slice_max(count, n = )
+  slice_max(count, n = 5)
 
-ggplot(data = commercial, aes(y = taxon, x = count)) +
-  geom_col()
+ggplot(data = commercial, aes(y = reorder(taxon, count), x = count)) +
+  geom_col() +
+  scale_fill_gradient()
+  scale_fill_gradient(low = "azure", high = "cadetblue4") +
+  theme_minimal() +
+  labs(title = "Most Commonly Traded Species for Given Trade Term",
+           x = "Count of Terms", y = "Species Taxon")
 ```
 
 ### Wrangling for Widget 2
@@ -250,8 +255,6 @@ Graph of traded species and how much is live or dead
 live_species <- wildlife %>% 
   group_by(taxon) %>% 
   filter(term == "live")
-  
-  
 
 ggplot(data = live_species, aes(count(x = taxon))) +
   geom_histogram()
