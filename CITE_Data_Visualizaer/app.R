@@ -142,7 +142,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                  "Map of Imports and Exports for Wildlife Species",
                  plotlyOutput(outputId = 'import_export_map'),
                  br(),
-                 plotOutput(outputId = "import_export_graph"),
+                 plotlyOutput(outputId = "import_export_graph"),
                  p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
                  ) # end of mainPanel
              ), #end of sidebarLayout
@@ -239,7 +239,7 @@ server <- function(input, output) {
       filter(exchange_status == input$import_export)
   }) #end import graph reactive
 ## tab 1 import/export graph output 
-  output$import_export_graph <- renderPlot({
+  output$import_export_graph <- renderPlotly({
     ggplot(data = import_export_taxon(), 
            aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = common_name)) +
       geom_col() +
