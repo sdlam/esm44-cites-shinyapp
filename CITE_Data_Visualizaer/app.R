@@ -106,7 +106,7 @@ megafauna_terms <- rbind(elephant_terms, oryx_terms, python_terms) %>%
   clean_names()
 
 ## create user interface 
-ui <- fluidPage(theme = bs_theme(bootswatch = "yeti"),
+ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
   navbarPage(
     "Wildlife Trade Visualization", #app title
     tabPanel("Overview", 
