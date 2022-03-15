@@ -225,7 +225,8 @@ server <- function(input, output) {
 ## Widget 1 map output 
  output$import_export_map <- renderPlotly({
     ggplot(data = import_export_select()) +
-    geom_sf(aes(fill = value), color = 'grey', size = 0.1) +
+    geom_sf(aes(fill = value), color = 'white', size = 0.1) +
+     geom_sf(data = world_sf) +
     scale_fill_gradient() +
     theme_void()
    }) #end output for map
