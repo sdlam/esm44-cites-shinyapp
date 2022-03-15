@@ -15,8 +15,6 @@ library(bslib)
 library(sf)
 library(DT)
 library(plotly)
-library(leaflet)
-library(tmap)
 library(paletteer)
 
 #read in data
