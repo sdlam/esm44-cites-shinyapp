@@ -140,8 +140,9 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                  "Map of Imports and Exports for Wildlife Species",
                  plotlyOutput(outputId = 'import_export_map'),
                  br(),
+                 p('This widget shows a global map of the countries with the highest amount of imports and exports during 2020 through 2021. You can zoom in to closely view what countries show the highest number of exchanges.'),
                  plotlyOutput(outputId = "import_export_graph"),
-                 p('This widget shows a global map of the countries with the highest amount of imports and exports of wildlife species and products')
+                 p('This plot shows the top 4 species that are being imported or exported within the years 2020 through 2021.')
                  ) # end of mainPanel
              ), #end of sidebarLayout
             ), #end of tabPanel for widget 1
@@ -184,7 +185,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                  plotOutput(outputId = "top_term_plot"),
                  dataTableOutput("purpose_table"),
                  br(),
-                 p("This widget provides an interactive table to visualize the most common purposes of traded wildlife species. ")
+                 p("This widget provides an interactive table to visualize the most common purposes of traded wildlife species, along with a graph that shows the top used species for the selected purpose'. ")
                ) #end of mainPanel
              ) #end sidebarLayout
              ), #end tabPanel widget 2
