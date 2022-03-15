@@ -236,9 +236,8 @@ live_term <- wildlife %>%
   summarize(count = n()) %>% 
   slice_max(count, n = 5)
 
-ggplot(data = commercial, aes(y = reorder(taxon, count), x = count)) +
-  geom_col() +
-  scale_fill_gradient()
+ggplot(data = live_term, aes(y = reorder(taxon, count), x = count)) +
+  geom_col(aes(fill = count)) +
   scale_fill_gradient(low = "azure", high = "cadetblue4") +
   theme_minimal() +
   labs(title = "Most Commonly Traded Species for Given Trade Term",

@@ -181,7 +181,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
                ),#end sidebarPanel
                mainPanel(
                  "Terms and Purposes of Traded Wildlife",
-                 plotlyOutput(outputId = "top_term_plot"),
+                 plotOutput(outputId = "top_term_plot"),
                  dataTableOutput("purpose_table"),
                  br(),
                  p("This widget provides an interactive table to visualize the most common purposes of traded wildlife species. ")
@@ -258,8 +258,8 @@ server <- function(input, output) {
   #start output for top term plot
   output$top_term_plot <- renderPlot({
     ggplot(data = top_term_reactive(), aes(x = count, y = reorder(taxon, count))) +
-      geom_col() +
-      scale_fill_gradient(low = "azure", high = "cadetblue4") +
+      geom_col(aes(fill = count)) +
+      scale_fill_gradient(low = "azure1", high = "cadetblue4") +
       theme_minimal() +
       labs(title = "Most Commonly Traded Species for Given Trade Term",
            x = "Count of Terms", y = "Species Taxon")
