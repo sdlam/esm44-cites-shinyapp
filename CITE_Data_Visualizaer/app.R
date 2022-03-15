@@ -123,6 +123,7 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
               br(),
               br(),
               tags$img(src = "Elephant.jpeg"), 
+              
               "Image source: CITES Elephants page"
             ) #end mainPanel
              ), #end tabPanel
@@ -225,9 +226,10 @@ server <- function(input, output) {
 ## Widget 1 map output 
  output$import_export_map <- renderPlotly({
     ggplot(data = import_export_select()) +
-     geom_sf(data = world_sf) +
-     geom_sf(aes(fill = value), color = 'white', size = 0.1) +
-     scale_fill_gradient() +
+     geom_sf(data = world_sf, color = "grey4", size = 0.1) +
+     geom_sf(aes(fill = value), color = 'white', size = 0) +
+     scale_fill_gradient(high = "#132B43", low = "lightcyan2") +
+     labs(fill = "Count") +
      theme_void()
    }) #end output for map
   
