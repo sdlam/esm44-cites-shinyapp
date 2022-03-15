@@ -130,10 +130,11 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
              sidebarLayout(
                sidebarPanel(
                  'Global Wildlife Importer and Exporters',
-                 radioButtons("radio",
+                 selectInput(
                               inputId = "import_export",
                               label = "Select Exchange",
-                              choices = c("Importers" = "import_count", "Exporters" = "export_count")
+                              choices = c("Importers" = "import_count", "Exporters" = "export_count"),
+                              selected = "Importers"
                                     ) # end radioButtons Input
                ), #end of sidebarPanel
                mainPanel(
