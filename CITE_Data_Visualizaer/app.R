@@ -122,8 +122,8 @@ ui <- fluidPage(theme = bs_theme(bootswatch = "sandstone"),
               "App created by Sarah Lam and Ali Martin, 2022",
               br(),
               br(),
-              tags$img(src = "Elephant.jpeg"), 
-              
+              tags$img(src = "Elephant.jpeg"),
+              br(),
               "Image source: CITES Elephants page"
             ) #end mainPanel
              ), #end tabPanel
