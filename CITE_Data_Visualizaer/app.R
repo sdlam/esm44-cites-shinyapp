@@ -244,7 +244,7 @@ server <- function(input, output) {
            aes(x = reorder(taxonomic_group, quantity), y = quantity, fill = common_name)) +
       geom_col() +
       scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4')) +
-      labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
+      labs(x = "Taxonomic group", y = "Count of Imported Individuals", fill = "Common Name") +
       ggtitle("Top Traded Species for 2021-2022") +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
   }) ## END IMPORT EXPORT FOR WIDGET 1
