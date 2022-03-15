@@ -70,17 +70,12 @@ ggplot(data = import_export_sf) +
   theme_void()
 
 ggplot(data = import_export_sf) +
-  geom_sf(aes(fill = export_count), color = 'white', size = 0.1) +
-  scale_fill_gradient() +
+  geom_sf(data = world_sf, color = "grey4", size = 0.1) +
+  geom_sf(aes(fill = export_count), color = 'white', size = 0) +
+  scale_fill_gradient(high = "#132B43", low = "lightcyan2") +
+  labs(fill = "Count") +
   theme_void()
 
-#Attempting to make tmap with all data 
-tmap_mode(mode = 'view') #toggles to interactive viewing
-tm_shape(import_export_sf) + #taking a shape..
-  tm_fill('import_count', palette = 'BuGn') + #attributing a fill to that shape
-  tm_borders(col = 'black') +
-  tm_shape() +
-  tm_dots()
 ```
 
 ```{r}
