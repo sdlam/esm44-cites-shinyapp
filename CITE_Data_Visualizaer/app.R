@@ -243,7 +243,7 @@ server <- function(input, output) {
       geom_col() +
       scale_fill_manual(values=c('azure','lightcyan2','lightskyblue3','lightskyblue4')) +
       labs(x = "Taxonomic group", y = "Count of Imported Individuals") +
-      ggtitle("Most Imported Species for 2021-2022") +
+      ggtitle("Top Traded Species for 2021-2022") +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) + NULL
   }) ## END IMPORT EXPORT FOR WIDGET 1
 
